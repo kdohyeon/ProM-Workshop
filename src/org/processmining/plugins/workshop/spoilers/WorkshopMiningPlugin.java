@@ -37,7 +37,7 @@ public class WorkshopMiningPlugin {
 	 * @return The workshop model mined from the given log using the default
 	 *         parameter values.
 	 */
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
+	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Workshop Model, default", requiredParameterLabels = { 0 })
 	public WorkshopModel mineDefault(PluginContext context, XLog log) {
 		return mineParameters(context, log, new WorkshopMiningParameters());
@@ -55,7 +55,7 @@ public class WorkshopMiningPlugin {
 	 * @return The workshop model mined from the given log using the given
 	 *         parameter values.
 	 */
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
+	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Workshop Model, parameterized", requiredParameterLabels = { 0, 1 })
 	public WorkshopModel mineParameters(PluginContext context, XLog log, WorkshopMiningParameters parameters) {
 		Collection<WorkshopMiningConnection> connections;
@@ -84,7 +84,7 @@ public class WorkshopMiningPlugin {
 	 * @return The workshop model mined from the given log using the
 	 *         user-provided parameter values.
 	 */
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
+	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Workshop Model, dialog", requiredParameterLabels = { 0 })
 	public WorkshopModel mineDefault(UIPluginContext context, XLog log) {
 		WorkshopMiningParameters parameters = new WorkshopMiningParameters();

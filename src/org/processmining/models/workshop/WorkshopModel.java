@@ -50,6 +50,7 @@ public class WorkshopModel implements HTMLToString {
 	 *            0.
 	 * @throws IOException
 	 */
+	
 	public WorkshopModel(InputStream input) throws IOException {
 		successionMap = new HashMap<XEventClass, Map<XEventClass, Integer>>();
 		importFromStream(input);

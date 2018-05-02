@@ -44,13 +44,13 @@ import org.processmining.models.workshop.sjjleemans.ProcessTree.model.Tau;
 		"Log", "Parameters" }, userAccessible = true)
 public class MiningPlugin {
 	
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree Model, default", requiredParameterLabels = { 0 })
 	public ProcessTreeModel mineDefault(PluginContext context, XLog log) {
 		return this.mineParameters(context, log, new ProcessTreeModelParameters());
 	}
 	
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
+	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "S.J.J. Leemans", email = "s.j.j.leemans@tue.nl")
 	@PluginVariant(variantLabel = "Mine a Process Tree Model, parameterized", requiredParameterLabels = { 0, 1 })
 	public ProcessTreeModel mineParameters(PluginContext context, XLog log, ProcessTreeModelParameters parameters) {
 		Collection<ProcessTreeModelConnection> connections;

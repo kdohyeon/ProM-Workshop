@@ -37,7 +37,7 @@ public class WorkshopConversionPlugin {
 	 * @return The workshop graph that results from converting the given model
 	 *         with the default parameter values.
 	 */
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
+	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
 	@PluginVariant(variantLabel = "Convert to Workshop Graph, default", requiredParameterLabels = { 0 })
 	public WorkshopGraph convertDefault(PluginContext context, WorkshopModel model) {
 		return convertParameters(context, model, new WorkshopConversionParameters());
@@ -55,7 +55,7 @@ public class WorkshopConversionPlugin {
 	 * @return The workshop graph that results from converting the given model
 	 *         with the given parameter values.
 	 */
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
+	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
 	@PluginVariant(variantLabel = "Convert to Workshop Graph, parameters", requiredParameterLabels = { 0, 1 })
 	public WorkshopGraph convertParameters(PluginContext context, WorkshopModel model,
 			WorkshopConversionParameters parameters) {
@@ -85,7 +85,7 @@ public class WorkshopConversionPlugin {
 	 * @return The workshop graph that results from converting the given model
 	 *         with the user-provided parameter values.
 	 */
-	@UITopiaVariant(affiliation = UITopiaVariant.EHV, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
+	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "H.M.W. Verbeek", email = "h.m.w.verbeek@tue.nl")
 	@PluginVariant(variantLabel = "Convert to Workshop Graph, dialog", requiredParameterLabels = { 0 })
 	public WorkshopGraph convertDialog(UIPluginContext context, WorkshopModel model) {
 		WorkshopConversionParameters parameters = new WorkshopConversionParameters();
