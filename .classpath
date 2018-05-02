@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" output="tests/bin-test" path="tests/src-test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=Workshop&amp;ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=ivysettings.xml&amp;loadSettingsOnDemand=false&amp;ivyUserDir=&amp;propertyFiles="/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ProM-Contexts"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ProM-Framework"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ProM-Models"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ProM-Plugins"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/bsh-2.0b4.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/com.google.guava.source_1.6.0.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/commons-math-3.1.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/freehep.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/freehep-util-2.1.2.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/google-analytics-java-1.1.1.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/guava-16.0.1.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/jargs-latest.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/javacsv.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/jgraph-5.13.0.4.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/jgrapht-jdk1.6.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/OpenXES-20171212.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/OpenXES-XStream-20171212.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/slickerbox-1.0rc1.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/Spex.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/TableLayout-20050920.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/Uitopia-0.5-20160527.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/UITopiaResources-0.5.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/weka.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/xstream-1.4.10.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
