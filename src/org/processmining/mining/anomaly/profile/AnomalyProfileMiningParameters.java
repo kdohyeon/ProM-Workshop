@@ -1,4 +1,4 @@
-package org.processmining.mining.relation;
+package org.processmining.mining.anomaly.profile;
 
 import org.deckfour.xes.classification.XEventAndClassifier;
 import org.deckfour.xes.classification.XEventClassifier;
@@ -6,7 +6,7 @@ import org.deckfour.xes.classification.XEventLifeTransClassifier;
 import org.deckfour.xes.classification.XEventNameClassifier;
 import org.processmining.plugins.workshop.spoilers.WorkshopMiningParameters;
 
-public class RelationMiningParameter {
+public class AnomalyProfileMiningParameters {
 	/**
 	 * Classifier parameter. This determines which classifier will be used
 	 * during the mining.
@@ -16,7 +16,7 @@ public class RelationMiningParameter {
 	/**
 	 * Create default parameter values.
 	 */
-	public RelationMiningParameter() {
+	public AnomalyProfileMiningParameters() {
 		classifier = new XEventAndClassifier(new XEventNameClassifier(), new XEventLifeTransClassifier());
 	}
 
@@ -52,7 +52,7 @@ public class RelationMiningParameter {
 	 */
 	public boolean equals(Object object) {
 		if (object instanceof WorkshopMiningParameters) {
-			RelationMiningParameter parameters = (RelationMiningParameter) object;
+			AnomalyProfileMiningParameters parameters = (AnomalyProfileMiningParameters) object;
 			if (classifier.equals(parameters.classifier)) {
 				return true;
 			}

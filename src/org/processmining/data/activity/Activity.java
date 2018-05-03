@@ -1,8 +1,6 @@
 package org.processmining.data.activity;
 
 import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -17,7 +15,7 @@ public class Activity {
 	private String eventID;
 	private String eventType;
 
-	private String processingTime;
+	private float processingTime;
 	
 	public Activity(String caseID, String activityID, String resourceID, String start_timestamp, String complete_timestamp, String eventID) throws ParseException {
 		this.caseID = caseID;
@@ -38,11 +36,11 @@ public class Activity {
 		Date complete_date = format.parse(complete_timestamp);
 		
 		long diff = (complete_date.getTime() - start_date.getTime()) / (24 * 60 * 60 * 1000);
-		NumberFormat formatter = new DecimalFormat("#0.00");
-		processingTime = String.valueOf(formatter.format(diff));
+		//NumberFormat formatter = new DecimalFormat("#0.00");
+		processingTime = diff;
 	}
 
-	public String getProcessingTime() {
+	public float getProcessingTime() {
 		return processingTime;
 	}
 	

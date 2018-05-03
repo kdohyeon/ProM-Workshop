@@ -1,10 +1,10 @@
-package org.processmining.models.relation.connections;
+package org.processmining.models.anomaly.profile.connections;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.connections.impl.AbstractConnection;
-import org.processmining.models.relation.RelationModel;
+import org.processmining.models.anomaly.profile.AnomalyProfileModel;
 
-public class AbstractRelationModelConnection<Parameters> extends AbstractConnection {
+public class AbstractAnomalyProfileModelConnection<Parameters> extends AbstractConnection {
 	/**
 	 * Label for the log end of the connection.
 	 */
@@ -30,8 +30,8 @@ public class AbstractRelationModelConnection<Parameters> extends AbstractConnect
 	 * @param parameters
 	 *            The parameters used to mine the model from the log.
 	 */
-	public AbstractRelationModelConnection(XLog log, RelationModel model, Parameters parameters) {
-		super("Relation model for log");
+	public AbstractAnomalyProfileModelConnection(XLog log, AnomalyProfileModel model, Parameters parameters) {
+		super("Anomaly Profile Model for log");
 		put(LOG, log);
 		put(MODEL, model);
 		this.parameters = parameters;

@@ -1,4 +1,4 @@
-package org.processmining.mining.relation;
+package org.processmining.mining.anomaly.profile;
 
 import java.awt.Dimension;
 
@@ -19,7 +19,7 @@ import com.fluxicon.slickerbox.factory.SlickerFactory;
 import info.clearthought.layout.TableLayout;
 import info.clearthought.layout.TableLayoutConstants;
 
-public class RelationMiningDialog extends JPanel {
+public class AnomalyProfileMiningDialog extends JPanel {
 	/**
 	 * 
 	 */
@@ -33,7 +33,7 @@ public class RelationMiningDialog extends JPanel {
 	 * @param parameters
 	 *            The parameters which will be used for the mining.
 	 */
-	public RelationMiningDialog(XLog log, final org.processmining.mining.relation.RelationMiningParameter parameters) {
+	public AnomalyProfileMiningDialog(XLog log, final org.processmining.mining.anomaly.profile.AnomalyProfileMiningParameters parameters) {
 		/*
 		 * Get a layout containing a single column and two rows, where the top
 		 * row height equals 30.

@@ -27,11 +27,23 @@ public class ActivityModel {
 		return activityArrayList.get(i).getCompleteTimestamp();
 	}
 	
-	public String getActivity(int i) {
+	public String getActivityID(int i) {
 		return activityArrayList.get(i).getActivityID();
 	}
 	
 	public String getCase(int i) {
 		return activityArrayList.get(i).getCaseID();
+	}
+	
+	public int getActivityCardinality() {
+		return activityArrayList.size();
+	}
+	
+	public float getProcessingTime(int i) {
+		return activityArrayList.get(i).getProcessingTime();
+	}
+	
+	public Activity getActivity(int i) {
+		return activityArrayList.get(i);
 	}
 }

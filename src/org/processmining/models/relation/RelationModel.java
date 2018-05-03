@@ -57,5 +57,19 @@ public class RelationModel {
 		return relationArrayList.get(i).getRelationType();
 	}
 	
+	public float getTransitionTime(int i) {
+		return relationArrayList.get(i).getTransitionTime();
+	}
 	
+	public float getOverlapTime(int i) {
+		return relationArrayList.get(i).getOverlapTime();
+	}
+	
+	public float getTrueXTime(int i) {
+		return relationArrayList.get(i).getTrueXTime();
+	}
+	
+	public float getTrueYTime(int i) {
+		return relationArrayList.get(i).getTrueYTime();
+	}
 }

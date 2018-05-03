@@ -13,9 +13,19 @@ public class Relation {
 	private Activity consequent;
 	private String relationType;
 	
+	private float transitionTime;
+	private float overlapTime;
+	private float trueXTime;
+	private float trueYTime;
+	
 	public Relation(Activity antecedent, Activity consequent) throws ParseException {
 		this.antecedent = antecedent;
 		this.consequent = consequent;
+		
+		transitionTime = 0;
+		overlapTime = 0;
+		trueXTime = 0;
+		trueYTime = 0;
 		
 		relationType = identifyRelationType();
 	}
@@ -32,10 +42,19 @@ public class Relation {
 		String relType = ""; 
 		RelationType relTypeDef = new RelationType();
 		
+		//NumberFormat formatter = new DecimalFormat("#0.00");
+		long conversionValue = 24 * 60 * 60 * 1000; // day
+		//long diff = (complete_date.getTime() - start_date.getTime()) / (24 * 60 * 60 * 1000);
+		
+		//processingTime = String.valueOf(formatter.format(diff));
+		
 		// relation 1
 		if(cons_start_date.after(ante_complete_date)) {
 			//System.out.println("Relation 1");
 			relType = relTypeDef.getRELATIONTYPE1();
+			
+			long trans = (cons_start_date.getTime() - ante_complete_date.getTime()) / (conversionValue);
+			transitionTime = trans;
 			
 		}else if(cons_start_date.equals(ante_complete_date)) {
 			//System.out.println("Relation 2");
@@ -45,19 +64,62 @@ public class Relation {
 			//System.out.println("Relation 3");
 			relType = relTypeDef.getRELATIONTYPE3();
 			
+			long overlap = (ante_complete_date.getTime() - cons_start_date.getTime()) / (conversionValue);
+			overlapTime = overlap;
+			
+			long trueX = (cons_start_date.getTime() - ante_start_date.getTime()) / (conversionValue);
+			trueXTime = trueX;
+			
+			long trueY = (cons_complete_date.getTime() - ante_complete_date.getTime()) / (conversionValue);
+			trueYTime = trueY;
+			
 		}else if(
 				(ante_start_date.equals(cons_start_date) && ante_complete_date.before(cons_complete_date))
 				|| (ante_start_date.equals(cons_start_date) && ante_complete_date.after(cons_complete_date))) {
+			// relation 4
 			relType = relTypeDef.getRELATIONTYPE4();
 			
+			long trueX = 0;
+			long trueY = 0;
+			
+			if(ante_complete_date.before(cons_complete_date)) {
+				trueX = (long) antecedent.getProcessingTime();
+				trueY = (long) (consequent.getProcessingTime() - antecedent.getProcessingTime());
+			}else {
+				trueX = (long) (consequent.getProcessingTime() - antecedent.getProcessingTime());
+				trueY = (long) antecedent.getProcessingTime();
+			}
+			
+			trueXTime = trueX;
+			trueYTime = trueY;
+			
+			
 		}else if(ante_start_date.before(cons_start_date) && ante_complete_date.after(cons_complete_date)){
+			// relation 5
 			relType = relTypeDef.getRELATIONTYPE5();
 			
+			long overlap = (long) consequent.getProcessingTime();
+			long trueX = (cons_start_date.getTime() - ante_start_date.getTime()) / (conversionValue);
+			long trueY = (cons_complete_date.getTime() - ante_complete_date.getTime()) / (conversionValue);
+			
+			overlapTime = overlap;
+			trueXTime = trueX;
+			trueYTime = trueY;
+			
 		}else if(ante_start_date.before(cons_start_date) && ante_complete_date.equals(cons_complete_date)){
+			// relation 6
 			relType = relTypeDef.getRELATIONTYPE6();
 			
+			long trueX = (long)(antecedent.getProcessingTime() - consequent.getProcessingTime());
+			long trueY = (long)(consequent.getProcessingTime());
+			
+			trueXTime = trueX;
+			trueYTime = trueY;
+			
 		}else if(ante_start_date.equals(cons_start_date) && ante_complete_date.equals(cons_complete_date)){
+			// relation 7
 			relType = relTypeDef.getRELATIONTYPE7();
+			
 		}else {
 			relType = "error";
 		}
@@ -87,6 +149,38 @@ public class Relation {
 
 	public void setRelationType(String relationType) {
 		this.relationType = relationType;
+	}
+
+	public float getTransitionTime() {
+		return transitionTime;
+	}
+
+	public void setTransitionTime(float transitionTime) {
+		this.transitionTime = transitionTime;
+	}
+
+	public float getOverlapTime() {
+		return overlapTime;
+	}
+
+	public void setOverlapTime(float overlapTime) {
+		this.overlapTime = overlapTime;
+	}
+
+	public float getTrueXTime() {
+		return trueXTime;
+	}
+
+	public void setTrueXTime(float trueXTime) {
+		this.trueXTime = trueXTime;
+	}
+
+	public float getTrueYTime() {
+		return trueYTime;
+	}
+
+	public void setTrueYTime(float trueYTime) {
+		this.trueYTime = trueYTime;
 	}
 
 }
