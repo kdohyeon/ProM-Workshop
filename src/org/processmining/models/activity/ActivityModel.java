@@ -1,6 +1,8 @@
 package org.processmining.models.activity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.processmining.data.activity.Activity;
 
@@ -45,5 +47,35 @@ public class ActivityModel {
 	
 	public Activity getActivity(int i) {
 		return activityArrayList.get(i);
+	}
+	
+	public ArrayList<String> getUniqueCaseID(){
+		ArrayList<String> result = new ArrayList<String>();
+		Set<String> caseSet = new HashSet<String>();
+		for(int i = 0; i < activityArrayList.size(); i++) {
+			caseSet.add(activityArrayList.get(i).getCaseID());
+		}
+		result.addAll(caseSet);
+		return result;
+	}
+	
+	public ArrayList<String> getUniqueActivityID(){
+		ArrayList<String> result = new ArrayList<String>();
+		Set<String> activitySet = new HashSet<String>();
+		for(int i = 0; i < activityArrayList.size(); i++) {
+			activitySet.add(activityArrayList.get(i).getActivityID());
+		}
+		result.addAll(activitySet);
+		return result;
+	}
+	
+	public ArrayList<String> getUniqueResourceID(){
+		ArrayList<String> result = new ArrayList<String>();
+		Set<String> resourceSet = new HashSet<String>();
+		for(int i = 0; i < activityArrayList.size(); i++) {
+			resourceSet.add(activityArrayList.get(i).getResourceID());
+		}
+		result.addAll(resourceSet);
+		return result;
 	}
 }

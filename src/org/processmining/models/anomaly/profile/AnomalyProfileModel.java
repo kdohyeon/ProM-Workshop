@@ -10,5 +10,9 @@ public class AnomalyProfileModel {
 	public AnomalyProfileModel(ActivityModel actModel, RelationModel relModel) {
 		this.actModel = actModel;
 		this.relModel = relModel;
+		
+		ProcessingProfileModel processingModel = new ProcessingProfileModel(actModel);
+		
+		processingModel.printProcessingProfile();
 	}
 }
