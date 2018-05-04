@@ -162,7 +162,7 @@ public class AnomalyProfileMiningPlugin {
 			}
 		}
 		
-		RelationModel relModel = new RelationModel();
+		RelationModel relModel = new RelationModel(actModel);
 		
 		int actSize = actModel.getActivityCardinality();
 		System.out.println("Activity Cardinality: " + actSize);
@@ -193,6 +193,7 @@ public class AnomalyProfileMiningPlugin {
 		int relListSize = relModel.getRelationCardinality();
 		System.out.println("Case ID --- Ante, Cons: RelType, Trans, Overlap, TrueX, TrueY");
 		for(int i = 0; i < relListSize; i++) {
+			
 			System.out.println(
 					relModel.getCaseID(i)
 					+ " --- " + relModel.getAntecedentActivity(i) 
@@ -207,6 +208,8 @@ public class AnomalyProfileMiningPlugin {
 		/*
 		 * Anomaly Profile Model
 		 * */
+		
+		relModel.getRelationMatrix();
 		
 		AnomalyProfileModel anomalyProfileModel = new AnomalyProfileModel(actModel, relModel);
 		
