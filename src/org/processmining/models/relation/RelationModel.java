@@ -1,7 +1,9 @@
 package org.processmining.models.relation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.deckfour.xes.classification.XEventClasses;
@@ -14,13 +16,15 @@ public class RelationModel {
 	
 	private ArrayList<Relation> relationArrayList;
 	
-	private RelationMatrix relMatrix;
+	private RelationMatrix relActivityMatrix;
+	private RelationMatrix relResourceMatrix;
 	
 	private ActivityModel actModel;
 	
 	public RelationModel(ActivityModel actModel) {
 		relationArrayList = new ArrayList<Relation>();
-		relMatrix = new RelationMatrix();
+		relActivityMatrix = new RelationMatrix();
+		relResourceMatrix = new RelationMatrix();
 		this.actModel = actModel;
 	}
 	
@@ -28,7 +32,64 @@ public class RelationModel {
 		
 	}
 	
-	public RelationMatrix getRelationMatrix() {
+	public RelationMatrix getRelationResourceMatrix() {
+		Set<String> antecedentSet = new HashSet<String>();
+		Set<String> consequentSet = new HashSet<String>();
+		Set<String> relationSet = new HashSet<String>();
+		for(int i = 0; i < relationArrayList.size(); i++) {
+			antecedentSet.add(relationArrayList.get(i).getAntecedent().getResourceID());
+			consequentSet.add(relationArrayList.get(i).getConsequent().getResourceID());
+			relationSet.add(relationArrayList.get(i).getRelationType());
+		}
+		
+		ArrayList<String> antecedentList = new ArrayList<String>();
+		ArrayList<String> consequentList = new ArrayList<String>();
+		ArrayList<String> relationList = new ArrayList<String>();
+		antecedentList.addAll(antecedentSet);
+		consequentList.addAll(consequentSet);
+		relationList.addAll(relationSet);
+		
+		int caseFrequency = actModel.getUniqueCaseID().size();
+		
+		for(int i = 0; i < antecedentList.size(); i++) {
+			String currAntecedent = antecedentList.get(i);
+			
+			for(int j = 0; j < consequentList.size(); j++) {
+				String currConsequent = consequentList.get(j);
+				
+				for(int k = 0; k < relationList.size(); k++) {
+					String currRelation = relationList.get(k);
+					
+					int cnt = 0;
+					Map<String, Integer> checkCaseSet = new HashMap<String, Integer>();
+					for(int l = 0; l < relationArrayList.size(); l++) {
+						if(relationArrayList.get(l).getAntecedent().getResourceID().equals(currAntecedent) 
+								&& relationArrayList.get(l).getConsequent().getResourceID().equals(currConsequent)
+								&& relationArrayList.get(l).getRelationType().equals(currRelation)) {
+							String caseID = relationArrayList.get(l).getAntecedent().getCaseID();
+							checkCaseSet.put(caseID, 1);
+							cnt++;
+						}	
+					}
+					
+					//float support = (float) (cnt * 1.0 / caseFrequency);
+					float support = (float) (checkCaseSet.size() * 1.0 / caseFrequency);
+					//float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfResource(currAntecedent));
+					float confidence = (float) (checkCaseSet.size() * 1.0 / actModel.getCaseFrequencyOfResource(currAntecedent));
+					
+					//RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
+					RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, checkCaseSet.size(), support, confidence);
+					relResourceMatrix.addRelationMatrixElement(elem);
+				}
+			}
+		}
+		
+		relResourceMatrix.printRelationMatrix();
+		
+		return relResourceMatrix;
+	}
+	
+	public RelationMatrix getRelationActivityMatrix() {
 		Set<String> antecedentSet = new HashSet<String>();
 		Set<String> consequentSet = new HashSet<String>();
 		Set<String> relationSet = new HashSet<String>();
@@ -69,14 +130,14 @@ public class RelationModel {
 					float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfActivity(currAntecedent));
 					
 					RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
-					relMatrix.addRelationMatrixElement(elem);
+					relActivityMatrix.addRelationMatrixElement(elem);
 				}
 			}
 		}
 		
-		relMatrix.printRelationMatrix();
+		relActivityMatrix.printRelationMatrix();
 		
-		return relMatrix;
+		return relActivityMatrix;
 	}
 	
 	public void addRelation(Relation rel) {

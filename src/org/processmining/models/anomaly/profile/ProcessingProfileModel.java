@@ -63,7 +63,8 @@ public class ProcessingProfileModel {
 					processingList.get(i).getActivityID() 
 					+ ", " + processingList.get(i).getResourceID() 
 					+ ": " + processingList.get(i).getFreq() 
-					+ ", " + processingList.get(i).getAvg());
+					+ ", " + processingList.get(i).getAvg()
+					+ ", " + processingList.get(i).getStdev());
 		}
 	}
 }

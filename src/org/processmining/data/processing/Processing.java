@@ -57,6 +57,8 @@ public class Processing {
 		
 		result = (float)Math.sqrt(result / activityList.size());
 		
+		stdev = result;
+		
 		return result;
 	}
 	

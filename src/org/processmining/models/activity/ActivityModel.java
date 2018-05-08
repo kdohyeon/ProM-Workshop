@@ -79,6 +79,21 @@ public class ActivityModel {
 		return result;
 	}
 	
+	public int getCaseFrequencyOfResource(String resName) {
+		int result = 0;
+		
+		Set<String> caseSet = new HashSet<String>();
+		for(int i = 0; i < activityArrayList.size(); i++) {
+			if(activityArrayList.get(i).getResourceID().equals(resName)) {
+				caseSet.add(activityArrayList.get(i).getCaseID());
+			}
+		}
+		
+		result = caseSet.size();
+		
+		return result;
+	}
+	
 	public int getCaseFrequencyOfActivity(String actName) {
 		int result = 0;
 		

@@ -108,19 +108,17 @@ public class AnomalyProfileMiningPlugin {
 		/*
 		 * Create an empty model.
 		 */
-
 		
 		/*
 		 * Inform the progress bar when we're done.
 		 */
 		context.getProgress().setMaximum(log.size());
 		
-		ActivityModel actModel = new ActivityModel();
-		//ArrayList<Activity> actList = new ArrayList<Activity>();
-		
 		/*
-		 * Get activity list
+		 * GET ACTIVITY MODEL
 		 * */
+		ActivityModel actModel = new ActivityModel();
+		
 		// for each case
 		for(int i = 0; i < log.size(); i++) {
 			// for each event
@@ -161,6 +159,10 @@ public class AnomalyProfileMiningPlugin {
 				}				
 			}
 		}
+		
+		/*
+		 * GET RELATION MODEL
+		 * */
 		
 		RelationModel relModel = new RelationModel(actModel);
 		
@@ -206,12 +208,16 @@ public class AnomalyProfileMiningPlugin {
 		}
 		
 		/*
-		 * Anomaly Profile Model
+		 * GET ANOMALY PROFILE MODEL - ACTIVITY & RESOURCE
 		 * */
 		
-		relModel.getRelationMatrix();
-		
+		System.out.println("### ACTIVITY MATRIX ###");
+		relModel.getRelationActivityMatrix();
+		System.out.println("### RESOURCE MATRIX ###");
+		relModel.getRelationResourceMatrix();
 		AnomalyProfileModel anomalyProfileModel = new AnomalyProfileModel(actModel, relModel);
+		
+		
 		
 		/* 
 		 * Advance the progress bar.
