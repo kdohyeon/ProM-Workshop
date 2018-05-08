@@ -58,6 +58,9 @@ public class ProcessingProfileModel {
 	}
 	
 	public void printProcessingProfile() {
+		
+		System.out.println("### Processing Profile ###");
+		
 		for(int i = 0; i < processingList.size(); i++) {
 			System.out.println(
 					processingList.get(i).getActivityID() 

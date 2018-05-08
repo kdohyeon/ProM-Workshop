@@ -60,7 +60,7 @@ public class RelationModel {
 				for(int k = 0; k < relationList.size(); k++) {
 					String currRelation = relationList.get(k);
 					
-					int cnt = 0;
+					//int cnt = 0;
 					Map<String, Integer> checkCaseSet = new HashMap<String, Integer>();
 					for(int l = 0; l < relationArrayList.size(); l++) {
 						if(relationArrayList.get(l).getAntecedent().getResourceID().equals(currAntecedent) 
@@ -68,7 +68,7 @@ public class RelationModel {
 								&& relationArrayList.get(l).getRelationType().equals(currRelation)) {
 							String caseID = relationArrayList.get(l).getAntecedent().getCaseID();
 							checkCaseSet.put(caseID, 1);
-							cnt++;
+							//cnt++;
 						}	
 					}
 					
@@ -152,6 +152,18 @@ public class RelationModel {
 	
 	public String getCaseID(int i) {
 		return relationArrayList.get(i).getAntecedent().getCaseID(); // it does not matter whether it is ante or cons
+	}
+	
+	public Relation getRelation(int i) {
+		return relationArrayList.get(i);
+	}
+	
+	public String getAntecedentResource(int i) {
+		return relationArrayList.get(i).getAntecedent().getResourceID();
+	}
+	
+	public String getConsequentResource(int i) {
+		return relationArrayList.get(i).getConsequent().getResourceID();
 	}
 	
 	public String getAntecedentActivity(int i) {
