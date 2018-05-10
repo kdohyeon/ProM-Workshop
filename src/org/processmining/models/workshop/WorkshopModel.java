@@ -187,6 +187,7 @@ public class WorkshopModel implements HTMLToString {
 	 * @returns An HTML formatted string from the workshop model.
 	 */
 	public String toHTMLString(boolean includeHTMLTags) {
+		System.out.println("toHTMLString");
 		StringBuffer buffer = new StringBuffer();
 		if (includeHTMLTags) {
 			buffer.append("<html>");

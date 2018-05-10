@@ -80,6 +80,14 @@ public class OverlapProfileModel {
 		}
 	}
 	
+	public ArrayList<Overlap> getOverlapList(){
+		return overlapList;
+	}
+	
+	public int getOverlapListSize() {
+		return overlapList.size();
+	}
+	
 	public void printOverlapProfile() {
 		
 		System.out.println("### Overlap Profile ###");

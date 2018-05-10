@@ -21,8 +21,12 @@ import org.processmining.models.activity.ActivityModel;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;
 import org.processmining.models.relation.RelationModel;
 
-@Plugin(name = "Anomaly Profile Miner", returnLabels = { "Anomaly Profile Model" }, returnTypes = { AnomalyProfileModel.class }, parameterLabels = {
-		"Log", "Parameters" }, userAccessible = true)
+@Plugin(
+		name = "Anomaly Profile Miner", 
+		returnLabels = { "Anomaly Profile Model" }, 
+		returnTypes = { AnomalyProfileModel.class }, 
+		parameterLabels = {"Log", "Parameters" }, 
+		userAccessible = true)
 public class AnomalyProfileMiningPlugin {
 	/**
 	 * Mining using default parameter values.

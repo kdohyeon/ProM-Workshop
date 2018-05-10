@@ -76,6 +76,14 @@ private RelationModel relModel;
 		}
 	}
 	
+	public ArrayList<TrueX> getTrueXList(){
+		return trueXList;
+	}
+	
+	public int getTrueXListSize(){
+		return trueXList.size();
+	}
+	
 	public void printTrueXProfile() {
 		
 		System.out.println("### TrueX Profile ###");

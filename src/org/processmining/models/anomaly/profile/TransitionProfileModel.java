@@ -77,6 +77,14 @@ public class TransitionProfileModel {
 		}
 	}
 	
+	public int getTransitionListSize() {
+		return transitionList.size();
+	}
+	
+	public ArrayList<Transition> getTransitionList(){
+		return transitionList;
+	}
+	
 	public void printTransitionProfile() {
 		
 		System.out.println("### Transition Profile ###");

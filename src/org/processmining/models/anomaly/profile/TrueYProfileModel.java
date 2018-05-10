@@ -76,6 +76,14 @@ private RelationModel relModel;
 		}
 	}
 	
+	public ArrayList<TrueY> getTrueYList(){
+		return trueYList;
+	}
+	
+	public int getTrueYListSize(){
+		return trueYList.size();
+	}
+	
 	public void printTrueYProfile() {
 		
 		System.out.println("### TrueY Profile ###");

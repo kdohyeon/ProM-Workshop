@@ -1,10 +1,11 @@
-package org.processmining.mining.anomaly.profile;
+package org.processmining.mining.anomaly.detection;
 
 import javax.swing.JPanel;
 
 import org.deckfour.xes.model.XLog;
+import org.processmining.models.anomaly.profile.AnomalyProfileModel;
 
-public class AnomalyProfileMiningDialog extends JPanel {
+public class AnomalyDetectionMiningDialog extends JPanel {
 	/**
 	 * 
 	 */
@@ -18,7 +19,10 @@ public class AnomalyProfileMiningDialog extends JPanel {
 	 * @param parameters
 	 *            The parameters which will be used for the mining.
 	 */
-	public AnomalyProfileMiningDialog(XLog log, final org.processmining.mining.anomaly.profile.AnomalyProfileMiningParameters parameters) {
+	public AnomalyDetectionMiningDialog(
+			XLog log,
+			AnomalyProfileModel profileModel,
+			final org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters parameters) {
 
 		/*
 		double size[][] = { { TableLayoutConstants.FILL }, { 30, TableLayoutConstants.FILL } };

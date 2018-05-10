@@ -81,17 +81,19 @@ public class Relation {
 			
 			long trueX = 0;
 			long trueY = 0;
+			long overlap = 0;
 			
 			if(ante_complete_date.before(cons_complete_date)) {
-				trueX = (long) antecedent.getProcessingTime();
 				trueY = (long) (consequent.getProcessingTime() - antecedent.getProcessingTime());
+				overlap = (long) (antecedent.getProcessingTime());
 			}else {
-				trueX = (long) (consequent.getProcessingTime() - antecedent.getProcessingTime());
-				trueY = (long) antecedent.getProcessingTime();
+				trueX = (long) (antecedent.getProcessingTime() - consequent.getProcessingTime());
+				overlap = (long) (consequent.getProcessingTime());
 			}
 			
 			trueXTime = trueX;
 			trueYTime = trueY;
+			overlapTime = overlap;
 			
 			
 		}else if(ante_start_date.before(cons_start_date) && ante_complete_date.after(cons_complete_date)){
@@ -100,7 +102,7 @@ public class Relation {
 			
 			long overlap = (long) consequent.getProcessingTime();
 			long trueX = (cons_start_date.getTime() - ante_start_date.getTime()) / (conversionValue);
-			long trueY = (cons_complete_date.getTime() - ante_complete_date.getTime()) / (conversionValue);
+			long trueY = (ante_complete_date.getTime() - cons_complete_date.getTime()) / (conversionValue);
 			
 			overlapTime = overlap;
 			trueXTime = trueX;
@@ -110,16 +112,19 @@ public class Relation {
 			// relation 6
 			relType = relTypeDef.getRELATIONTYPE6();
 			
+			long overlap = (long)(consequent.getProcessingTime());
 			long trueX = (long)(antecedent.getProcessingTime() - consequent.getProcessingTime());
-			long trueY = (long)(consequent.getProcessingTime());
+			//long trueY = (long)(consequent.getProcessingTime());
 			
 			trueXTime = trueX;
-			trueYTime = trueY;
+			overlapTime = overlap;
+			//trueYTime = trueY;
 			
 		}else if(ante_start_date.equals(cons_start_date) && ante_complete_date.equals(cons_complete_date)){
 			// relation 7
 			relType = relTypeDef.getRELATIONTYPE7();
-			
+			long overlap = (long)(consequent.getProcessingTime());
+			overlapTime = overlap;
 		}else {
 			relType = "error";
 		}

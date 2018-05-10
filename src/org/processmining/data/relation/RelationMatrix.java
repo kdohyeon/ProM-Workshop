@@ -28,4 +28,32 @@ public class RelationMatrix {
 			}
 		}
 	}
+	
+	public int getRelationMatrixListSize() {
+		return relationMatrixList.size();
+	}
+	
+	public String getAntecedent(int i) {
+		return relationMatrixList.get(i).getAntecedent();
+	}
+	
+	public String getConsequent(int i) {
+		return relationMatrixList.get(i).getConsequent();
+	}
+	
+	public String getRelationType(int i) {
+		return relationMatrixList.get(i).getRelationType();
+	}
+	
+	public int getFrequency(int i) {
+		return relationMatrixList.get(i).getFreq();
+	}
+	
+	public float getSupport(int i) {
+		return relationMatrixList.get(i).getSupport();
+	}
+	
+	public float getConfidence(int i) {
+		return relationMatrixList.get(i).getConfidence();
+	}
 }

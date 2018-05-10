@@ -70,4 +70,12 @@ public class ProcessingProfileModel {
 					+ ", " + processingList.get(i).getStdev());
 		}
 	}
+	
+	public ArrayList<Processing> getProcessingList(){
+		return processingList;
+	}
+	
+	public int getProcessingListSize() {
+		return processingList.size();
+	}
 }

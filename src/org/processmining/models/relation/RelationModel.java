@@ -72,19 +72,21 @@ public class RelationModel {
 						}	
 					}
 					
-					//float support = (float) (cnt * 1.0 / caseFrequency);
-					float support = (float) (checkCaseSet.size() * 1.0 / caseFrequency);
-					//float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfResource(currAntecedent));
-					float confidence = (float) (checkCaseSet.size() * 1.0 / actModel.getCaseFrequencyOfResource(currAntecedent));
-					
-					//RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
-					RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, checkCaseSet.size(), support, confidence);
-					relResourceMatrix.addRelationMatrixElement(elem);
+					if(checkCaseSet.size() > 0) {
+						//float support = (float) (cnt * 1.0 / caseFrequency);
+						float support = (float) (checkCaseSet.size() * 1.0 / caseFrequency);
+						//float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfResource(currAntecedent));
+						float confidence = (float) (checkCaseSet.size() * 1.0 / actModel.getCaseFrequencyOfResource(currAntecedent));
+						
+						//RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
+						RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, checkCaseSet.size(), support, confidence);
+						relResourceMatrix.addRelationMatrixElement(elem);						
+					}
 				}
 			}
 		}
 		
-		relResourceMatrix.printRelationMatrix();
+		//relResourceMatrix.printRelationMatrix();
 		
 		return relResourceMatrix;
 	}
@@ -126,16 +128,18 @@ public class RelationModel {
 						}	
 					}
 					
-					float support = (float) (cnt * 1.0 / caseFrequency);
-					float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfActivity(currAntecedent));
-					
-					RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
-					relActivityMatrix.addRelationMatrixElement(elem);
+					if(cnt > 0) {
+						float support = (float) (cnt * 1.0 / caseFrequency);
+						float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfActivity(currAntecedent));
+						
+						RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
+						relActivityMatrix.addRelationMatrixElement(elem);	
+					}
 				}
 			}
 		}
 		
-		relActivityMatrix.printRelationMatrix();
+		//relActivityMatrix.printRelationMatrix();
 		
 		return relActivityMatrix;
 	}
