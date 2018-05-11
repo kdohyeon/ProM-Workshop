@@ -107,10 +107,7 @@ public class AnomalyDetectionMiningPlugin {
 		 */
 		context.getProgress().setMaximum(log.size());
 		
-		
 		AnomalyDetectionModel anomalyDetectionModel = new AnomalyDetectionModel(log, profileModel);
-		
-		
 		
 		/* 
 		 * Advance the progress bar.

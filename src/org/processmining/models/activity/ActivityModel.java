@@ -1,16 +1,79 @@
 package org.processmining.models.activity;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.deckfour.xes.model.XAttributeMap;
+import org.deckfour.xes.model.XLog;
 import org.processmining.data.activity.Activity;
+import org.processmining.data.xes.XESAttributeDefinition;
 
 public class ActivityModel {
 	private ArrayList<Activity> activityArrayList;
 	
-	public ActivityModel() {
+	public ActivityModel(XLog log) throws ParseException {
 		activityArrayList = new ArrayList<Activity>();
+		this.createActivityModel(log);
+	}
+	
+	public int getCaseFrequencyOfActivity(String actName) {
+		int result = 0;
+		
+		Set<String> caseSet = new HashSet<String>();
+		for(int i = 0; i < activityArrayList.size(); i++) {
+			if(activityArrayList.get(i).getActivityID().equals(actName)) {
+				caseSet.add(activityArrayList.get(i).getCaseID());
+			}
+		}
+		
+		result = caseSet.size();
+		
+		return result;
+	}
+	
+	public void createActivityModel(XLog log) throws ParseException {
+		// for each case
+		for(int i = 0; i < log.size(); i++) {
+			// for each event
+			String caseID = log.get(i).getAttributes().get("concept:name").toString();
+			for(int j = 0; j < log.get(i).size(); j++) {
+				
+				// find the start and complete pair
+				XESAttributeDefinition def = new XESAttributeDefinition();
+				XAttributeMap map = log.get(i).get(j).getAttributes();
+				
+				int currJ = j;
+				
+				Activity act;
+				if(map.get(def.getEVENT_TYPE()).toString().equals(def.getEVENT_TYPE_START())) {
+					String activityID = map.get("concept:name").toString();
+					String start_timestamp = map.get("time:timestamp").toString();
+					String resource = map.get("org:resource").toString();
+					
+					String eventID = map.get(def.getEVENT_ID()).toString();
+					//String eventType_complete = def.getEVENT_TYPE_COMPLETE();
+					
+					boolean isFound = false;
+					while(!isFound) {
+						XAttributeMap iterMap = log.get(i).get(currJ++).getAttributes();
+						
+						if(iterMap.get("EventID").toString().equals(eventID) && iterMap.get("EventType").toString().equals("complete")) {
+							String complete_timestamp = iterMap.get(def.getTIMESTAMP()).toString();
+							act = new Activity(
+									caseID, activityID, resource,
+									start_timestamp, complete_timestamp,
+									eventID
+									);
+
+							addActivity(act);
+							isFound = true;
+						}
+					}
+				}				
+			}
+		}
 	}
 	
 	public void addActivity(Activity act) {
@@ -85,21 +148,6 @@ public class ActivityModel {
 		Set<String> caseSet = new HashSet<String>();
 		for(int i = 0; i < activityArrayList.size(); i++) {
 			if(activityArrayList.get(i).getResourceID().equals(resName)) {
-				caseSet.add(activityArrayList.get(i).getCaseID());
-			}
-		}
-		
-		result = caseSet.size();
-		
-		return result;
-	}
-	
-	public int getCaseFrequencyOfActivity(String actName) {
-		int result = 0;
-		
-		Set<String> caseSet = new HashSet<String>();
-		for(int i = 0; i < activityArrayList.size(); i++) {
-			if(activityArrayList.get(i).getActivityID().equals(actName)) {
 				caseSet.add(activityArrayList.get(i).getCaseID());
 			}
 		}

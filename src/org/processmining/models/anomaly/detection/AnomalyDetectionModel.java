@@ -32,4 +32,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 		return buffer.toString();
 	}
 	
+	private void getActModel() {
+		
+	}
 }

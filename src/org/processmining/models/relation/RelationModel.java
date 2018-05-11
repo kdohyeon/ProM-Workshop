@@ -1,5 +1,6 @@
 package org.processmining.models.relation;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,7 +26,56 @@ public class RelationModel {
 		relationArrayList = new ArrayList<Relation>();
 		relActivityMatrix = new RelationMatrix();
 		relResourceMatrix = new RelationMatrix();
+		
 		this.actModel = actModel;
+		
+		createRelationModel();
+	}
+	
+	private void createRelationModel() {
+		int actSize = actModel.getActivityCardinality();
+		System.out.println("Activity Cardinality: " + actSize);
+		
+		for(int i = 0; i < actSize; i++) {
+			/*
+			System.out.println(
+					actModel.getCase(i) 
+					+ ", " + actModel.getActivityID(i) 
+					+ ": " + actModel.getProcessingTime(i));
+			*/
+			
+			String currCase = actModel.getCase(i);
+			
+			for(int j = i+1; j < actSize; j++) {
+				String thisCase = actModel.getCase(j);
+				if(currCase.equals(thisCase)) {
+					try {
+						Relation rel = new Relation(actModel.getActivity(i), actModel.getActivity(j));
+						addRelation(rel);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+			//System.out.println(actList.get(i).getCaseID() + ", " + actList.get(i).getActivityID() + ", " + actList.get(i).getStartTimestamp() + ", " + actList.get(i).getCompleteTimestamp());
+		}
+		/*
+		int relListSize = relModel.getRelationCardinality();
+		System.out.println("Case ID --- Ante, Cons: RelType, Trans, Overlap, TrueX, TrueY");
+		for(int i = 0; i < relListSize; i++) {
+			
+			System.out.println(
+					relModel.getCaseID(i)
+					+ " --- " + relModel.getAntecedentActivity(i) 
+					+ ", " + relModel.getConsequentActivity(i)
+					+ ": " + relModel.getRelationType(i)
+					+ ", " + relModel.getTransitionTime(i)
+					+ ", " + relModel.getOverlapTime(i)
+					+ ", " + relModel.getTrueXTime(i)
+					+ ", " + relModel.getTrueYTime(i));
+		}
+		*/
 	}
 	
 	public RelationModel(XEventClasses eventClasses) {

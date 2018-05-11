@@ -6,13 +6,9 @@ import java.util.Collection;
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
-import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
-import org.processmining.data.activity.Activity;
-import org.processmining.data.relation.Relation;
-import org.processmining.data.xes.XESAttributeDefinition;
 import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
@@ -121,48 +117,7 @@ public class AnomalyProfileMiningPlugin {
 		/*
 		 * GET ACTIVITY MODEL
 		 * */
-		ActivityModel actModel = new ActivityModel();
-		
-		// for each case
-		for(int i = 0; i < log.size(); i++) {
-			// for each event
-			String caseID = log.get(i).getAttributes().get("concept:name").toString();
-			for(int j = 0; j < log.get(i).size(); j++) {
-				
-				// find the start and complete pair
-				XESAttributeDefinition def = new XESAttributeDefinition();
-				XAttributeMap map = log.get(i).get(j).getAttributes();
-				
-				int currJ = j;
-				
-				Activity act;
-				if(map.get(def.getEVENT_TYPE()).toString().equals(def.getEVENT_TYPE_START())) {
-					String activityID = map.get("concept:name").toString();
-					String start_timestamp = map.get("time:timestamp").toString();
-					String resource = map.get("org:resource").toString();
-					
-					String eventID = map.get(def.getEVENT_ID()).toString();
-					//String eventType_complete = def.getEVENT_TYPE_COMPLETE();
-					
-					boolean isFound = false;
-					while(!isFound) {
-						XAttributeMap iterMap = log.get(i).get(currJ++).getAttributes();
-						
-						if(iterMap.get("EventID").toString().equals(eventID) && iterMap.get("EventType").toString().equals("complete")) {
-							String complete_timestamp = iterMap.get(def.getTIMESTAMP()).toString();
-							act = new Activity(
-									caseID, activityID, resource,
-									start_timestamp, complete_timestamp,
-									eventID
-									);
-
-							actModel.addActivity(act);
-							isFound = true;
-						}
-					}
-				}				
-			}
-		}
+		ActivityModel actModel = new ActivityModel(log);
 		
 		/*
 		 * GET RELATION MODEL
@@ -170,46 +125,6 @@ public class AnomalyProfileMiningPlugin {
 		
 		RelationModel relModel = new RelationModel(actModel);
 		
-		int actSize = actModel.getActivityCardinality();
-		System.out.println("Activity Cardinality: " + actSize);
-		
-		for(int i = 0; i < actSize; i++) {
-			System.out.println(
-					actModel.getCase(i) 
-					+ ", " + actModel.getActivityID(i) 
-					+ ": " + actModel.getProcessingTime(i));
-			
-			String currCase = actModel.getCase(i);
-			
-			for(int j = i+1; j < actSize; j++) {
-				String thisCase = actModel.getCase(j);
-				if(currCase.equals(thisCase)) {
-					try {
-						Relation rel = new Relation(actModel.getActivity(i), actModel.getActivity(j));
-						relModel.addRelation(rel);
-					} catch (ParseException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-			//System.out.println(actList.get(i).getCaseID() + ", " + actList.get(i).getActivityID() + ", " + actList.get(i).getStartTimestamp() + ", " + actList.get(i).getCompleteTimestamp());
-		}
-		
-		int relListSize = relModel.getRelationCardinality();
-		System.out.println("Case ID --- Ante, Cons: RelType, Trans, Overlap, TrueX, TrueY");
-		for(int i = 0; i < relListSize; i++) {
-			
-			System.out.println(
-					relModel.getCaseID(i)
-					+ " --- " + relModel.getAntecedentActivity(i) 
-					+ ", " + relModel.getConsequentActivity(i)
-					+ ": " + relModel.getRelationType(i)
-					+ ", " + relModel.getTransitionTime(i)
-					+ ", " + relModel.getOverlapTime(i)
-					+ ", " + relModel.getTrueXTime(i)
-					+ ", " + relModel.getTrueYTime(i));
-		}
 		
 		/*
 		 * GET ANOMALY PROFILE MODEL - ACTIVITY & RESOURCE
