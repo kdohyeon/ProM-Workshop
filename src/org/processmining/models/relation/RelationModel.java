@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.deckfour.xes.classification.XEventClasses;
+import org.processmining.data.activity.Activity;
 import org.processmining.data.relation.Relation;
 import org.processmining.data.relation.RelationMatrix;
 import org.processmining.data.relation.RelationMatrixElement;
@@ -22,6 +22,9 @@ public class RelationModel {
 	
 	private ActivityModel actModel;
 	
+	private float minSupp;
+	private float minConf;
+	
 	public RelationModel(ActivityModel actModel) {
 		relationArrayList = new ArrayList<Relation>();
 		relActivityMatrix = new RelationMatrix();
@@ -29,12 +32,15 @@ public class RelationModel {
 		
 		this.actModel = actModel;
 		
+		setMinSupp(0);
+		setMinConf(0);
+		
 		createRelationModel();
 	}
 	
 	private void createRelationModel() {
 		int actSize = actModel.getActivityCardinality();
-		System.out.println("Activity Cardinality: " + actSize);
+		//System.out.println("Activity Cardinality: " + actSize);
 		
 		for(int i = 0; i < actSize; i++) {
 			/*
@@ -78,11 +84,19 @@ public class RelationModel {
 		*/
 	}
 	
-	public RelationModel(XEventClasses eventClasses) {
+	public int getCaseSize(String caseID) {
+		int cnt = 0;
 		
+		for(int i = 0; i < relationArrayList.size(); i++) {
+			if(caseID.equals(relationArrayList.get(i).getAntecedent().getCaseID())) {
+				cnt++;
+			}
+		}
+		
+		return cnt;
 	}
 	
-	public RelationMatrix getRelationResourceMatrix() {
+	public RelationMatrix calculateRelationResourceMatrix() {
 		Set<String> antecedentSet = new HashSet<String>();
 		Set<String> consequentSet = new HashSet<String>();
 		Set<String> relationSet = new HashSet<String>();
@@ -128,9 +142,12 @@ public class RelationModel {
 						//float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfResource(currAntecedent));
 						float confidence = (float) (checkCaseSet.size() * 1.0 / actModel.getCaseFrequencyOfResource(currAntecedent));
 						
-						//RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
-						RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, checkCaseSet.size(), support, confidence);
-						relResourceMatrix.addRelationMatrixElement(elem);						
+						if(support > minSupp && confidence > minConf) {
+							//RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
+							RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, checkCaseSet.size(), support, confidence);
+							relResourceMatrix.addRelationMatrixElement(elem);													
+						}
+
 					}
 				}
 			}
@@ -141,7 +158,7 @@ public class RelationModel {
 		return relResourceMatrix;
 	}
 	
-	public RelationMatrix getRelationActivityMatrix() {
+	public RelationMatrix calculateRelationActivityMatrix() {
 		Set<String> antecedentSet = new HashSet<String>();
 		Set<String> consequentSet = new HashSet<String>();
 		Set<String> relationSet = new HashSet<String>();
@@ -182,23 +199,31 @@ public class RelationModel {
 						float support = (float) (cnt * 1.0 / caseFrequency);
 						float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfActivity(currAntecedent));
 						
-						RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
-						relActivityMatrix.addRelationMatrixElement(elem);	
+						if(support > minSupp && confidence > minConf) {
+							RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
+							relActivityMatrix.addRelationMatrixElement(elem);		
+						}
 					}
 				}
 			}
 		}
 		
-		//relActivityMatrix.printRelationMatrix();
+		System.out.println("CF Rule: " + relActivityMatrix.getRelationMatrixListSize());
 		
 		return relActivityMatrix;
+	}
+	
+	public RelationMatrix getRelationActivityMatrix() {
+		return relActivityMatrix;
+	}
+	
+	public RelationMatrix getRelationResourceMatrix() {
+		return relResourceMatrix;
 	}
 	
 	public void addRelation(Relation rel) {
 		relationArrayList.add(rel);
 	}
-	
-	
 	
 	public int getRelationCardinality() {
 		return relationArrayList.size();
@@ -220,11 +245,19 @@ public class RelationModel {
 		return relationArrayList.get(i).getConsequent().getResourceID();
 	}
 	
-	public String getAntecedentActivity(int i) {
+	public Activity getAntecedentActivity(int i) {
+		return relationArrayList.get(i).getAntecedent();
+	}
+	
+	public Activity getConsequentActivity(int i) {
+		return relationArrayList.get(i).getConsequent();
+	}
+	
+	public String getAntecedentActivityID(int i) {
 		return relationArrayList.get(i).getAntecedent().getActivityID();
 	}
 	
-	public String getConsequentActivity(int i) {
+	public String getConsequentActivityID(int i) {
 		return relationArrayList.get(i).getConsequent().getActivityID();
 	}
 	
@@ -262,5 +295,21 @@ public class RelationModel {
 	
 	public float getTrueYTime(int i) {
 		return relationArrayList.get(i).getTrueYTime();
+	}
+
+	public float getMinSupp() {
+		return minSupp;
+	}
+
+	public void setMinSupp(float minSupp) {
+		this.minSupp = minSupp;
+	}
+
+	public float getMinConf() {
+		return minConf;
+	}
+
+	public void setMinConf(float minConf) {
+		this.minConf = minConf;
 	}
 }

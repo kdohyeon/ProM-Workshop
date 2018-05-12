@@ -8,16 +8,22 @@ import org.processmining.models.activity.ActivityModel;
 public class ProcessingProfileModel {
 	private ActivityModel actModel;
 	
-	private ArrayList<Processing> processingList;
+	private ArrayList<Processing> processingList_Act_Res;
+	private ArrayList<Processing> processingList_Act;
+	private ArrayList<Processing> processingList_Res;
 	
 	public ProcessingProfileModel(ActivityModel actModel) {
 		this.actModel = actModel;
-		processingList = new ArrayList<Processing>();
+		processingList_Act_Res = new ArrayList<Processing>();
+		processingList_Act = new ArrayList<Processing>();
+		processingList_Res = new ArrayList<Processing>();
 		
-		getProcessingProfileModel();
+		getProcessingProfileModel_Act_Res();
+		getProcessingProfileModel_Act();
+		getProcessingProfileModel_Res();
 	}
 	
-	private void getProcessingProfileModel() {
+	private void getProcessingProfileModel_Act_Res() {
 		int size = actModel.getActivityCardinality();
 		
 		ArrayList<String> activityList = new ArrayList<String>();
@@ -44,38 +50,105 @@ public class ProcessingProfileModel {
 						p.addActivity(actModel.getActivity(k));
 					}
 				}
-				
+				 
 				if(isActivity && isResource) {
 					p.calculateFreq();
 					p.calculateAverage();
 					p.calculateaMax();
 					p.calculateMin();
 					p.calculateStdev();
-					processingList.add(p);
+					
+					processingList_Act_Res.add(p);
 				}
 			}
 		}
 	}
 	
-	public void printProcessingProfile() {
+	private void getProcessingProfileModel_Act() {
+		int size = actModel.getActivityCardinality();
 		
-		System.out.println("### Processing Profile ###");
+		ArrayList<String> activityList = new ArrayList<String>();
+		activityList = actModel.getUniqueActivityID();
 		
-		for(int i = 0; i < processingList.size(); i++) {
-			System.out.println(
-					processingList.get(i).getActivityID() 
-					+ ", " + processingList.get(i).getResourceID() 
-					+ ": " + processingList.get(i).getFreq() 
-					+ ", " + processingList.get(i).getAvg()
-					+ ", " + processingList.get(i).getStdev());
+		for(int i  = 0; i < activityList.size(); i++) { // for each activity
+			String activityID = activityList.get(i);
+			
+			Processing p = new Processing(activityID);
+			
+			boolean isActivity = false;
+			
+			for(int k = 0; k < size; k++) {
+				if(actModel.getActivityID(k).equals(activityID)) {
+					isActivity = true;
+					p.addActivity(actModel.getActivity(k));
+				}
+			}
+			
+			if(isActivity) {
+				p.calculateFreq();
+				p.calculateAverage();
+				p.calculateaMax();
+				p.calculateMin();
+				p.calculateStdev();
+				
+				processingList_Act.add(p);
+			}
 		}
 	}
 	
-	public ArrayList<Processing> getProcessingList(){
-		return processingList;
+	private void getProcessingProfileModel_Res() {
+		int size = actModel.getActivityCardinality();
+		
+		ArrayList<String> resourceList = new ArrayList<String>();
+		resourceList = actModel.getUniqueResourceID();
+		
+		for(int i  = 0; i < resourceList.size(); i++) { // for each activity
+			String resourceID = resourceList.get(i);
+			
+			Processing p = new Processing(resourceID);
+			
+			boolean isResource = false;
+			
+			for(int k = 0; k < size; k++) {
+				if(actModel.getResource(k).equals(resourceID)) {
+					isResource = true;
+					p.addActivity(actModel.getActivity(k));
+				}
+			}
+			
+			if(isResource) {
+				p.calculateFreq();
+				p.calculateAverage();
+				p.calculateaMax();
+				p.calculateMin();
+				p.calculateStdev();
+				
+				processingList_Res.add(p);
+			}
+		}
 	}
 	
-	public int getProcessingListSize() {
-		return processingList.size();
+	public ArrayList<Processing> getProcessingList_Act_Res(){
+		return processingList_Act_Res;
+	}
+	
+	public int getProcessingList_Act_Res_Size() {
+		return processingList_Act_Res.size();
+	}
+	
+	public ArrayList<Processing> getProcessingList_Act(){
+		return processingList_Act;
+	}
+	
+	public int getProcessingList_Act_Size() {
+		return processingList_Act.size();
+	}
+	
+	public ArrayList<Processing> getProcessingList_Res(){
+		return processingList_Res;
+	}
+	
+	public int getProcessingList_Res_Size() {
+		return processingList_Res.size();
 	}
 }

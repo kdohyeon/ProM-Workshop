@@ -1,8 +1,21 @@
 package org.processmining.mining.anomaly.profile;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.deckfour.xes.model.XLog;
+
+import com.fluxicon.slickerbox.factory.SlickerDecorator;
+import com.fluxicon.slickerbox.factory.SlickerFactory;
 
 public class AnomalyProfileMiningDialog extends JPanel {
 	/**
@@ -20,30 +33,123 @@ public class AnomalyProfileMiningDialog extends JPanel {
 	 */
 	public AnomalyProfileMiningDialog(XLog log, final org.processmining.mining.anomaly.profile.AnomalyProfileMiningParameters parameters) {
 
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		
+		SlickerFactory factory = SlickerFactory.instance();
+		SlickerDecorator decorator = SlickerDecorator.instance();
+		
+		int customPanelWidth = 405;
+		
 		/*
-		double size[][] = { { TableLayoutConstants.FILL }, { 30, TableLayoutConstants.FILL } };
-		setLayout(new TableLayout(size));
+		 * Parameter
+		 * */
+		JPanel parameterPanel = factory.createRoundedPanel(15, Color.gray);
+		parameterPanel.setLayout(new BoxLayout(parameterPanel, BoxLayout.Y_AXIS));
 		
-		add(SlickerFactory.instance().createLabel("<html><h2>Select mining parameters</h2>"), "0, 0");
-
-		Object classifiers[] = log.getClassifiers().toArray();
-
-		final JList classifierList = new javax.swing.JList(classifiers);
-		classifierList.setName("Select classifier");
-		classifierList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		JLabel parameterTitle = factory.createLabel("Select mining parameters");
+		parameterTitle.setBounds(10, 10, 200, 30);
+		parameterTitle.setFont(new Font("Dialog", Font.BOLD, 18));
 		
-		classifierList.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				parameters.setClassifier((XEventClassifier) classifierList.getSelectedValue());
+		/*
+		 * Minimum Support
+		 * */
+		JLabel supportTitle = factory.createLabel("Minimum support: ");
+		supportTitle.setFont(new Font("Dialog", Font.BOLD, 14));
+		
+		FlowLayout customLayout = new FlowLayout(FlowLayout.LEFT);
+		customLayout.setHgap(2);
+		
+		JPanel supportSliderPane = new JPanel(customLayout);
+		supportSliderPane.setBackground(Color.GRAY);
+		
+		final JLabel supportSliderLabel = new JLabel("0.50");
+		supportSliderLabel.setPreferredSize(new Dimension(60,20));
+		
+		final JSlider supportSlider = new JSlider();
+		
+		supportSlider.setPreferredSize(new Dimension(customPanelWidth - 60, 20));
+		supportSlider.setMajorTickSpacing(10);
+		supportSlider.setMinorTickSpacing(5);
+		supportSlider.setPaintTicks(true);
+		supportSlider.setPaintLabels(true);
+		supportSlider.setValue(50);
+		parameters.setMinSupport((float)0.5);
+		supportSlider.addChangeListener(new ChangeListener() {
+
+			public void stateChanged(ChangeEvent e) {
+				// TODO Auto-generated method stub
+				float minSupp = (float)(supportSlider.getValue() * 1.0 / 100);
+				parameters.setMinSupport(minSupp);
+				String labelStr = String.valueOf(minSupp);
+				supportSliderLabel.setText(labelStr);
 			}
+			
 		});
 		
-		JScrollPane classifierScrollPane = new javax.swing.JScrollPane();
-		SlickerDecorator.instance().decorate(classifierScrollPane, SlickerColors.COLOR_BG_3, SlickerColors.COLOR_FG,
-				SlickerColors.COLOR_BG_1);
-		classifierScrollPane.setPreferredSize(new Dimension(250, 300));
-		classifierScrollPane.setViewportView(classifierList);
-		add(classifierScrollPane, "0, 1");
-		*/
+		decorator.decorate(supportTitle);
+		decorator.decorate(supportSlider);
+		decorator.decorate(supportSliderLabel);
+		
+		supportSliderPane.add(supportTitle);
+		supportSliderPane.add(supportSlider);
+		supportSliderPane.add(supportSliderLabel);
+		
+		/*
+		 * Minimum Confidence
+		 * */
+		JLabel confidenceTitle = factory.createLabel("Minimum confidence: ");
+		confidenceTitle.setFont(new Font("Dialog", Font.BOLD, 14));
+		
+		JPanel confidenceSliderPane = new JPanel(customLayout);
+		confidenceSliderPane.setBackground(Color.GRAY);
+		
+		final JLabel confidenceSliderLabel = new JLabel("0.50");
+		confidenceSliderLabel.setPreferredSize(new Dimension(60,20));
+		
+		final JSlider confidenceSlider = new JSlider();
+		
+		confidenceSlider.setPreferredSize(new Dimension(customPanelWidth - 60, 20));
+		confidenceSlider.setMajorTickSpacing(10);
+		confidenceSlider.setMinorTickSpacing(5);
+		confidenceSlider.setPaintTicks(true);
+		confidenceSlider.setPaintLabels(true);
+		confidenceSlider.setValue(50);
+		parameters.setMinConfidence((float)0.5);
+		confidenceSlider.addChangeListener(new ChangeListener() {
+
+			public void stateChanged(ChangeEvent e) {
+				// TODO Auto-generated method stub
+				float minConf = (float)(confidenceSlider.getValue() * 1.0 / 100);
+				parameters.setMinConfidence(minConf);
+				String labelStr = String.valueOf(minConf);
+				confidenceSliderLabel.setText(labelStr);
+			}
+			
+		});
+		
+		decorator.decorate(confidenceTitle);
+		decorator.decorate(confidenceSlider);
+		decorator.decorate(confidenceSliderLabel);
+		
+		confidenceSliderPane.add(confidenceTitle);
+		confidenceSliderPane.add(confidenceSlider);
+		confidenceSliderPane.add(confidenceSliderLabel);
+		
+		/* 
+		 * Add to parameter panel
+		 * */
+		parameterPanel.add(supportSliderPane);
+		parameterPanel.add(confidenceSliderPane);
+		
+		add(parameterTitle);
+		add(parameterPanel);
+		
+		
+		validate();
+		repaint();
+		
+		
+		
 	}
+	
 }

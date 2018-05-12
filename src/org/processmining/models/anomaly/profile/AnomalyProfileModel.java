@@ -41,6 +41,7 @@ public class AnomalyProfileModel implements HTMLToString{
 		setTrueYModel(trueYModel);
 	}
 	
+	
 	public String toHTMLString(boolean includeHTMLTags) {
 		StringBuffer buffer = new StringBuffer();
 		if (includeHTMLTags) {
@@ -60,14 +61,14 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("<th> Standard Deviation </th>");
 		buffer.append("</tr>");
 		
-		int processingListSize = processingModel.getProcessingListSize();
+		int processingListSize = processingModel.getProcessingList_Act_Res_Size();
 		for(int i = 0; i < processingListSize; i++) {
 			buffer.append("<tr>");
-			buffer.append("<td>" + processingModel.getProcessingList().get(i).getActivityID() + "</td>");
-			buffer.append("<td>" + processingModel.getProcessingList().get(i).getResourceID() + "</td>");
-			buffer.append("<td>" + processingModel.getProcessingList().get(i).getFreq() + "</td>");
-			buffer.append("<td>" + processingModel.getProcessingList().get(i).getAvg() + "</td>");
-			buffer.append("<td>" + processingModel.getProcessingList().get(i).getStdev() + "</td>");
+			buffer.append("<td>" + processingModel.getProcessingList_Act_Res().get(i).getActivityID() + "</td>");
+			buffer.append("<td>" + processingModel.getProcessingList_Act_Res().get(i).getResourceID() + "</td>");
+			buffer.append("<td>" + processingModel.getProcessingList_Act_Res().get(i).getFreq() + "</td>");
+			buffer.append("<td>" + processingModel.getProcessingList_Act_Res().get(i).getAvg() + "</td>");
+			buffer.append("<td>" + processingModel.getProcessingList_Act_Res().get(i).getStdev() + "</td>");
 			buffer.append("</tr>");
 		}
 		buffer.append("</table>");
@@ -88,17 +89,17 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("<th> Standard Deviation </th>");
 		buffer.append("</tr>");
 		
-		int transitionListSize = transitionModel.getTransitionListSize();
+		int transitionListSize = transitionModel.getTransitionList_Act_Res_Size();
 		for(int i = 0; i < transitionListSize; i++) {
 			buffer.append("<tr>");
-			buffer.append("<td>" + transitionModel.getTransitionList().get(i).getFromActivityID() + "</td>");
-			buffer.append("<td>" + transitionModel.getTransitionList().get(i).getToActivityID() + "</td>");
-			buffer.append("<td>" + transitionModel.getTransitionList().get(i).getFromResourceID() + "</td>");
-			buffer.append("<td>" + transitionModel.getTransitionList().get(i).getToResourceID() + "</td>");
-			buffer.append("<td>" + transitionModel.getTransitionList().get(i).getRelation() + "</td>");
-			buffer.append("<td>" + transitionModel.getTransitionList().get(i).getFreq() + "</td>");
-			buffer.append("<td>" + transitionModel.getTransitionList().get(i).getAvg() + "</td>");
-			buffer.append("<td>" + transitionModel.getTransitionList().get(i).getStdev() + "</td>");
+			buffer.append("<td>" + transitionModel.getTransitionList_Act_Res().get(i).getFromActivityID() + "</td>");
+			buffer.append("<td>" + transitionModel.getTransitionList_Act_Res().get(i).getToActivityID() + "</td>");
+			buffer.append("<td>" + transitionModel.getTransitionList_Act_Res().get(i).getFromResourceID() + "</td>");
+			buffer.append("<td>" + transitionModel.getTransitionList_Act_Res().get(i).getToResourceID() + "</td>");
+			buffer.append("<td>" + transitionModel.getTransitionList_Act_Res().get(i).getRelation() + "</td>");
+			buffer.append("<td>" + transitionModel.getTransitionList_Act_Res().get(i).getFreq() + "</td>");
+			buffer.append("<td>" + transitionModel.getTransitionList_Act_Res().get(i).getAvg() + "</td>");
+			buffer.append("<td>" + transitionModel.getTransitionList_Act_Res().get(i).getStdev() + "</td>");
 			buffer.append("</tr>");
 		}
 		buffer.append("</table>");
@@ -118,17 +119,17 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("<th> Average </th>");
 		buffer.append("<th> Standard Deviation </th>");
 		buffer.append("</tr>");
-		int overlapListSize = overlapModel.getOverlapListSize();
+		int overlapListSize = overlapModel.getOverlapList_Act_Res_Size();
 		for(int i = 0; i < overlapListSize; i++) {
 			buffer.append("<tr>");
-			buffer.append("<td>" + overlapModel.getOverlapList().get(i).getFromActivityID() + "</td>");
-			buffer.append("<td>" + overlapModel.getOverlapList().get(i).getToActivityID() + "</td>");
-			buffer.append("<td>" + overlapModel.getOverlapList().get(i).getFromResourceID() + "</td>");
-			buffer.append("<td>" + overlapModel.getOverlapList().get(i).getToResourceID() + "</td>");
-			buffer.append("<td>" + overlapModel.getOverlapList().get(i).getRelation() + "</td>");
-			buffer.append("<td>" + overlapModel.getOverlapList().get(i).getFreq() + "</td>");
-			buffer.append("<td>" + overlapModel.getOverlapList().get(i).getAvg() + "</td>");
-			buffer.append("<td>" + overlapModel.getOverlapList().get(i).getStdev() + "</td>");
+			buffer.append("<td>" + overlapModel.getOverlapList_Act_Res().get(i).getFromActivityID() + "</td>");
+			buffer.append("<td>" + overlapModel.getOverlapList_Act_Res().get(i).getToActivityID() + "</td>");
+			buffer.append("<td>" + overlapModel.getOverlapList_Act_Res().get(i).getFromResourceID() + "</td>");
+			buffer.append("<td>" + overlapModel.getOverlapList_Act_Res().get(i).getToResourceID() + "</td>");
+			buffer.append("<td>" + overlapModel.getOverlapList_Act_Res().get(i).getRelation() + "</td>");
+			buffer.append("<td>" + overlapModel.getOverlapList_Act_Res().get(i).getFreq() + "</td>");
+			buffer.append("<td>" + overlapModel.getOverlapList_Act_Res().get(i).getAvg() + "</td>");
+			buffer.append("<td>" + overlapModel.getOverlapList_Act_Res().get(i).getStdev() + "</td>");
 			buffer.append("</tr>");
 		}
 		buffer.append("</table>");
@@ -148,17 +149,17 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("<th> Average </th>");
 		buffer.append("<th> Standard Deviation </th>");
 		buffer.append("</tr>");
-		int trueXListSize = trueXModel.getTrueXListSize();
+		int trueXListSize = trueXModel.getTrueXList_Act_Res_Size();
 		for(int i = 0; i < trueXListSize; i++) {
 			buffer.append("<tr>");
-			buffer.append("<td>" + trueXModel.getTrueXList().get(i).getFromActivityID() + "</td>");
-			buffer.append("<td>" + trueXModel.getTrueXList().get(i).getToActivityID() + "</td>");
-			buffer.append("<td>" + trueXModel.getTrueXList().get(i).getFromResourceID() + "</td>");
-			buffer.append("<td>" + trueXModel.getTrueXList().get(i).getToResourceID() + "</td>");
-			buffer.append("<td>" + trueXModel.getTrueXList().get(i).getRelation() + "</td>");
-			buffer.append("<td>" + trueXModel.getTrueXList().get(i).getFreq() + "</td>");
-			buffer.append("<td>" + trueXModel.getTrueXList().get(i).getAvg() + "</td>");
-			buffer.append("<td>" + trueXModel.getTrueXList().get(i).getStdev() + "</td>");
+			buffer.append("<td>" + trueXModel.getTrueXList_Act_Res().get(i).getFromActivityID() + "</td>");
+			buffer.append("<td>" + trueXModel.getTrueXList_Act_Res().get(i).getToActivityID() + "</td>");
+			buffer.append("<td>" + trueXModel.getTrueXList_Act_Res().get(i).getFromResourceID() + "</td>");
+			buffer.append("<td>" + trueXModel.getTrueXList_Act_Res().get(i).getToResourceID() + "</td>");
+			buffer.append("<td>" + trueXModel.getTrueXList_Act_Res().get(i).getRelation() + "</td>");
+			buffer.append("<td>" + trueXModel.getTrueXList_Act_Res().get(i).getFreq() + "</td>");
+			buffer.append("<td>" + trueXModel.getTrueXList_Act_Res().get(i).getAvg() + "</td>");
+			buffer.append("<td>" + trueXModel.getTrueXList_Act_Res().get(i).getStdev() + "</td>");
 			buffer.append("</tr>");
 		}
 		buffer.append("</table>");
@@ -178,17 +179,17 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("<th> Average </th>");
 		buffer.append("<th> Standard Deviation </th>");
 		buffer.append("</tr>");
-		int trueYListSize = trueYModel.getTrueYListSize();
+		int trueYListSize = trueYModel.getTrueYList_Act_Res_Size();
 		for(int i = 0; i < trueYListSize; i++) {
 			buffer.append("<tr>");
-			buffer.append("<td>" + trueYModel.getTrueYList().get(i).getFromActivityID() + "</td>");
-			buffer.append("<td>" + trueYModel.getTrueYList().get(i).getToActivityID() + "</td>");
-			buffer.append("<td>" + trueYModel.getTrueYList().get(i).getFromResourceID() + "</td>");
-			buffer.append("<td>" + trueYModel.getTrueYList().get(i).getToResourceID() + "</td>");
-			buffer.append("<td>" + trueYModel.getTrueYList().get(i).getRelation() + "</td>");
-			buffer.append("<td>" + trueYModel.getTrueYList().get(i).getFreq() + "</td>");
-			buffer.append("<td>" + trueYModel.getTrueYList().get(i).getAvg() + "</td>");
-			buffer.append("<td>" + trueYModel.getTrueYList().get(i).getStdev() + "</td>");
+			buffer.append("<td>" + trueYModel.getTrueYList_Act_Res().get(i).getFromActivityID() + "</td>");
+			buffer.append("<td>" + trueYModel.getTrueYList_Act_Res().get(i).getToActivityID() + "</td>");
+			buffer.append("<td>" + trueYModel.getTrueYList_Act_Res().get(i).getFromResourceID() + "</td>");
+			buffer.append("<td>" + trueYModel.getTrueYList_Act_Res().get(i).getToResourceID() + "</td>");
+			buffer.append("<td>" + trueYModel.getTrueYList_Act_Res().get(i).getRelation() + "</td>");
+			buffer.append("<td>" + trueYModel.getTrueYList_Act_Res().get(i).getFreq() + "</td>");
+			buffer.append("<td>" + trueYModel.getTrueYList_Act_Res().get(i).getAvg() + "</td>");
+			buffer.append("<td>" + trueYModel.getTrueYList_Act_Res().get(i).getStdev() + "</td>");
 			buffer.append("</tr>");
 		}
 		buffer.append("</table>");

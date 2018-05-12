@@ -4,8 +4,6 @@ import java.text.ParseException;
 import java.util.Collection;
 
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
-import org.deckfour.xes.info.XLogInfo;
-import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -101,10 +99,7 @@ public class AnomalyProfileMiningPlugin {
 	 * values.
 	 */
 	private AnomalyProfileModel mine(PluginContext context, XLog log, AnomalyProfileMiningParameters parameters) throws ParseException {
-		/*
-		 * Create event classes based on the given classifier.
-		 */
-		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
+
 		/*
 		 * Create an empty model.
 		 */
@@ -115,6 +110,11 @@ public class AnomalyProfileMiningPlugin {
 		context.getProgress().setMaximum(log.size());
 		
 		/*
+		 * GET PARAMETERS
+		 * */
+		
+		
+		/*
 		 * GET ACTIVITY MODEL
 		 * */
 		ActivityModel actModel = new ActivityModel(log);
@@ -122,26 +122,30 @@ public class AnomalyProfileMiningPlugin {
 		/*
 		 * GET RELATION MODEL
 		 * */
-		
 		RelationModel relModel = new RelationModel(actModel);
-		
 		
 		/*
 		 * GET ANOMALY PROFILE MODEL - ACTIVITY & RESOURCE
 		 * */
 		
-		System.out.println("### ACTIVITY MATRIX ###");
-		relModel.getRelationActivityMatrix();
-		System.out.println("### RESOURCE MATRIX ###");
-		relModel.getRelationResourceMatrix();
-		AnomalyProfileModel anomalyProfileModel = new AnomalyProfileModel(actModel, relModel);
+		// parameter setting
+		relModel.setMinSupp(parameters.getMinSupport());
+		relModel.setMinConf(parameters.getMinConfidence());
 		
+		// get activity matrix
+		relModel.calculateRelationActivityMatrix();
+
+		// get resource matrix
+		relModel.calculateRelationResourceMatrix();
+		
+		// get anomaly profile model
+		AnomalyProfileModel anomalyProfileModel = new AnomalyProfileModel(actModel, relModel);
 		
 		
 		/* 
 		 * Advance the progress bar.
 		 */
-		// context.getProgress().inc();
+		context.getProgress().inc();
 		
 
 		/*

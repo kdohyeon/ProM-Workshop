@@ -4,8 +4,6 @@ import java.text.ParseException;
 import java.util.Collection;
 
 import org.deckfour.uitopia.api.event.TaskListener.InteractionResult;
-import org.deckfour.xes.info.XLogInfo;
-import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
@@ -94,27 +92,22 @@ public class AnomalyDetectionMiningPlugin {
 			XLog log,
 			AnomalyProfileModel profileModel,
 			AnomalyDetectionMiningParameters parameters) throws ParseException {
-		/*
-		 * Create event classes based on the given classifier.
-		 */
-		XLogInfo info = XLogInfoFactory.createLogInfo(log, parameters.getClassifier());
-		/*
-		 * Create an empty model.
-		 */
 		
 		/*
 		 * Inform the progress bar when we're done.
 		 */
 		context.getProgress().setMaximum(log.size());
 		
-		AnomalyDetectionModel anomalyDetectionModel = new AnomalyDetectionModel(log, profileModel);
+		/*
+		 * Anomaly Detection Model
+		 * */
+		AnomalyDetectionModel anomalyDetectionModel = new AnomalyDetectionModel(log, profileModel, parameters);
 		
 		/* 
 		 * Advance the progress bar.
 		 */
-		// context.getProgress().inc();
+		context.getProgress().inc();
 		
-
 		/*
 		 * Return the model.
 		 */

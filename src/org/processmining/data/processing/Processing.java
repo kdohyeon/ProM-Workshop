@@ -25,6 +25,13 @@ public class Processing {
 		this.activityList = new ArrayList<Activity>();
 	}
 	
+	public Processing(String activityID) {
+		this.activityID = activityID;
+		this.resourceID = activityID;
+		
+		this.activityList = new ArrayList<Activity>();
+	}
+	
 	public int calculateFreq() {
 		freq = activityList.size();
 		return freq;
