@@ -46,7 +46,9 @@ public class AnomalyDetectionModel implements HTMLToString{
 		/*
 		 * Resource Perspective Rule Matching
 		 * */
-		ResourceRuleMatchingModel rRuleMatching = new ResourceRuleMatchingModel();
+		ResourceRuleMatchingModel rRuleMatching = new ResourceRuleMatchingModel(
+				trainingActModel, testActModel, trainingRelModel, testRelModel, profileModel, parameters);
+		
 		
 		/*
 		 * Anomaly Score

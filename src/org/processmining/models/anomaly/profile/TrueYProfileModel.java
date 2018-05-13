@@ -202,7 +202,7 @@ private RelationModel relModel;
 		return trueYList_Act.size();
 	}
 	
-	public ArrayList<TrueY> getTrueY_Res_List(){
+	public ArrayList<TrueY> getTrueYList_Res(){
 		return trueYList_Res;
 	}
 	

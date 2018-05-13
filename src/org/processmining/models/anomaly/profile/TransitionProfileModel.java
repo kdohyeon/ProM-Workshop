@@ -183,7 +183,7 @@ public class TransitionProfileModel {
 			transitionMap.put(key, existingTransition);
 			
 			transitionList_Res.add(transitionMap.get(key));
-			//System.out.println(key + ": " + transitionMap.get(key).getRelationListCardinality());
+			//System.out.println(key + ": " + existingTransition.getAvg() + "+/-" + existingTransition.getStdev());
 		}
 	}
 	

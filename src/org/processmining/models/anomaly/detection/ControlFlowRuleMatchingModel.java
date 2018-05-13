@@ -543,7 +543,7 @@ public class ControlFlowRuleMatchingModel {
 				boolean trueY = false;
 				
 				// rule 1
-				if(testRelationType.equals("<")) {
+				if(trainingRelationType.equals("<")) {
 					// check the activities
 					if(trainingAntecedentActivityID.equals(testAntecedentActivityID) && trainingConsequentActivityID.equals(testConsequentActivityID)) { 
 						// check the processing time of antecedent activities
@@ -578,7 +578,7 @@ public class ControlFlowRuleMatchingModel {
 							}
 						}					
 					}
-				}else if(testRelationType.equals("m")) {// rule 2
+				}else if(trainingRelationType.equals("m")) {// rule 2
 					// check the activities
 					if(trainingAntecedentActivityID.equals(testAntecedentActivityID) && trainingConsequentActivityID.equals(testConsequentActivityID)) { 
 						// check the processing time of antecedent activities
@@ -605,7 +605,7 @@ public class ControlFlowRuleMatchingModel {
 							}
 						}					
 					}
-				}else if(testRelationType.equals("o")) {// rule 3
+				}else if(trainingRelationType.equals("o")) {// rule 3
 					// check the activities
 					if(trainingAntecedentActivityID.equals(testAntecedentActivityID) && trainingConsequentActivityID.equals(testConsequentActivityID)) { 
 						// check the processing time of antecedent activities
@@ -646,7 +646,7 @@ public class ControlFlowRuleMatchingModel {
 							}
 						}					
 					}
-				}else if(testRelationType.equals("s")) {// rule 4
+				}else if(trainingRelationType.equals("s")) {// rule 4
 					// check the activities
 					if(trainingAntecedentActivityID.equals(testAntecedentActivityID) && trainingConsequentActivityID.equals(testConsequentActivityID)) { 
 						// check the processing time of antecedent activities
@@ -679,7 +679,7 @@ public class ControlFlowRuleMatchingModel {
 							}
 						}					
 					}
-				}else if(testRelationType.equals("d")) {// rule 5
+				}else if(trainingRelationType.equals("d")) {// rule 5
 					// check the activities
 					if(trainingAntecedentActivityID.equals(testAntecedentActivityID) && trainingConsequentActivityID.equals(testConsequentActivityID)) { 
 						// check the processing time of antecedent activities
@@ -720,7 +720,7 @@ public class ControlFlowRuleMatchingModel {
 							}
 						}					
 					}
-				}else if(testRelationType.equals("f")) {// rule 6
+				}else if(trainingRelationType.equals("f")) {// rule 6
 					// check the activities
 					if(trainingAntecedentActivityID.equals(testAntecedentActivityID) && trainingConsequentActivityID.equals(testConsequentActivityID)) { 
 						// check the processing time of antecedent activities
@@ -753,7 +753,7 @@ public class ControlFlowRuleMatchingModel {
 							}
 						}					
 					}
-				}else if(testRelationType.equals("=")) {// rule 7
+				}else if(trainingRelationType.equals("=")) {// rule 7
 					// check the activities
 					if(trainingAntecedentActivityID.equals(testAntecedentActivityID) && trainingConsequentActivityID.equals(testConsequentActivityID)) { 
 						// check the processing time of antecedent activities
