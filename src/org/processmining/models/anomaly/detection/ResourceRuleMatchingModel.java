@@ -158,6 +158,8 @@ public class ResourceRuleMatchingModel {
 				}
 			}
 			
+			boolean isChecked = false;
+			
 			// check if current rule exists in the log (by case)
 			for(int j = 0; j < logSize; j++) {
 				
@@ -214,6 +216,7 @@ public class ResourceRuleMatchingModel {
 								temp.add(testRelModel.getRelation(j));
 								normalInLog.put(caseID, temp);	
 							}
+							isChecked = true;
 						}					
 					}
 				}else if(testRelationType.equals("m")) {// rule 2
@@ -241,6 +244,7 @@ public class ResourceRuleMatchingModel {
 								temp.add(testRelModel.getRelation(j));
 								normalInLog.put(caseID, temp);	
 							}
+							isChecked = true;
 						}					
 					}
 				}else if(testRelationType.equals("o")) {// rule 3
@@ -282,6 +286,7 @@ public class ResourceRuleMatchingModel {
 								temp.add(testRelModel.getRelation(j));
 								normalInLog.put(caseID, temp);	
 							}
+							isChecked = true;
 						}					
 					}
 				}else if(testRelationType.equals("s")) {// rule 4
@@ -315,6 +320,7 @@ public class ResourceRuleMatchingModel {
 								temp.add(testRelModel.getRelation(j));
 								normalInLog.put(caseID, temp);	
 							}
+							isChecked = true;
 						}					
 					}
 				}else if(testRelationType.equals("d")) {// rule 5
@@ -356,6 +362,7 @@ public class ResourceRuleMatchingModel {
 								temp.add(testRelModel.getRelation(j));
 								normalInLog.put(caseID, temp);	
 							}
+							isChecked = true;
 						}					
 					}
 				}else if(testRelationType.equals("f")) {// rule 6
@@ -389,6 +396,7 @@ public class ResourceRuleMatchingModel {
 								temp.add(testRelModel.getRelation(j));
 								normalInLog.put(caseID, temp);	
 							}
+							isChecked = true;
 						}					
 					}
 				}else if(testRelationType.equals("=")) {// rule 7
@@ -414,8 +422,13 @@ public class ResourceRuleMatchingModel {
 								temp.add(testRelModel.getRelation(j));
 								normalInLog.put(caseID, temp);	
 							}
+							isChecked = true;
 						}					
 					}
+				}
+				
+				if(isChecked) {
+					break;
 				}
 			}
 		}
