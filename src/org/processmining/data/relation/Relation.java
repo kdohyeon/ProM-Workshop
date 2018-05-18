@@ -30,6 +30,7 @@ public class Relation {
 		relationType = identifyRelationType();
 	}
 	
+	
 	private String identifyRelationType() throws ParseException {
 		
 		String date_format = "yyyy-MM-dd";
@@ -188,4 +189,11 @@ public class Relation {
 		this.trueYTime = trueYTime;
 	}
 
+	public String getActivity() {
+		return antecedent.getActivityID() + "_" + relationType + "_" + consequent.getActivityID();
+	}
+	
+	public String getResource() {
+		return antecedent.getResourceID() + "_" + relationType + "_" + consequent.getResourceID();
+	}
 }

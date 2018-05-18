@@ -1,5 +1,6 @@
 package org.processmining.mining.anomaly.detection;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Collection;
 
@@ -24,7 +25,7 @@ public class AnomalyDetectionMiningPlugin {
 	
 	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "Dohyeon Kim", email = "kdohyeon@postech.ac.kr")
 	@PluginVariant(variantLabel = "Mine a anomaly detection model, default", requiredParameterLabels = { 0, 1 })
-	public AnomalyDetectionModel mineDefault(PluginContext context, XLog log, AnomalyProfileModel profileModel) throws ParseException {
+	public AnomalyDetectionModel mineDefault(PluginContext context, XLog log, AnomalyProfileModel profileModel) throws ParseException, IOException {
 		return mineParameters(context, log, profileModel, new AnomalyDetectionMiningParameters());
 	}
 	
@@ -38,10 +39,11 @@ public class AnomalyDetectionMiningPlugin {
 	 * @return The workshop model mined from the given log using the
 	 *         user-provided parameter values.
 	 * @throws ParseException 
+	 * @throws IOException 
 	 */
 	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "Dohyeon Kim", email = "kdohyeon@postech.ac.kr")
 	@PluginVariant(variantLabel = "Mine a anomaly detection model, dialog", requiredParameterLabels = { 0, 1 })
-	public AnomalyDetectionModel mineDefault(UIPluginContext context, XLog log, AnomalyProfileModel profileModel) throws ParseException {
+	public AnomalyDetectionModel mineDefault(UIPluginContext context, XLog log, AnomalyProfileModel profileModel) throws ParseException, IOException {
 		AnomalyDetectionMiningParameters parameters = new AnomalyDetectionMiningParameters();
 		AnomalyDetectionMiningDialog dialog = new AnomalyDetectionMiningDialog(log, profileModel, parameters);
 		InteractionResult result = context.showWizard("Anomaly Detection Miner", true, true, dialog);
@@ -63,10 +65,11 @@ public class AnomalyDetectionMiningPlugin {
 	 * @return The workshop model mined from the given log using the given
 	 *         parameter values.
 	 * @throws ParseException 
+	 * @throws IOException 
 	 */
 	@UITopiaVariant(affiliation = UITopiaVariant.POSTECH, author = "Dohyeon Kim", email = "kdohyeon@postech.ac.kr")
 	@PluginVariant(variantLabel = "Mine a anomaly detection model, parameterized", requiredParameterLabels = { 0, 1 })
-	public AnomalyDetectionModel mineParameters(PluginContext context, XLog log, AnomalyProfileModel profileModel, AnomalyDetectionMiningParameters parameters) throws ParseException {
+	public AnomalyDetectionModel mineParameters(PluginContext context, XLog log, AnomalyProfileModel profileModel, AnomalyDetectionMiningParameters parameters) throws ParseException, IOException {
 		Collection<AnomalyDetectionMiningConnection> connections;
 		try {
 			connections = context.getConnectionManager().getConnections(AnomalyDetectionMiningConnection.class, context, log, profileModel);
@@ -91,7 +94,7 @@ public class AnomalyDetectionMiningPlugin {
 			PluginContext context, 
 			XLog log,
 			AnomalyProfileModel profileModel,
-			AnomalyDetectionMiningParameters parameters) throws ParseException {
+			AnomalyDetectionMiningParameters parameters) throws ParseException, IOException {
 		
 		/*
 		 * Inform the progress bar when we're done.

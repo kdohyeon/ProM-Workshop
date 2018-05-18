@@ -38,7 +38,7 @@ public class ControlFlowRuleMatchingModel2 {
 		ArrayList<TrueY> trueYList = new ArrayList<TrueY>();
 		trueYList = profileModel.getTrueYModel().getTrueYList_Act();
 		
-		
+		// for each rule, get the profile
 		
 		// compare the rules and the log
 		

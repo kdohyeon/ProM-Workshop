@@ -56,4 +56,8 @@ public class RelationMatrix {
 	public float getConfidence(int i) {
 		return relationMatrixList.get(i).getConfidence();
 	}
+	
+	public String getPair(int i) {
+		return relationMatrixList.get(i).getAntecedent() + "_" + relationMatrixList.get(i).getRelationType() + "_" + relationMatrixList.get(i).getConsequent();
+	}
 }

@@ -2,9 +2,12 @@ package org.processmining.models.anomaly.detection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
+import org.processmining.data.anomaly.ResourceScore;
 import org.processmining.data.overlap.Overlap;
 import org.processmining.data.processing.Processing;
 import org.processmining.data.relation.Relation;
@@ -13,11 +16,12 @@ import org.processmining.data.transition.Transition;
 import org.processmining.data.trueX.TrueX;
 import org.processmining.data.trueY.TrueY;
 import org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters;
+import org.processmining.mining.anomaly.score.ResourceScoreModel;
 import org.processmining.models.activity.ActivityModel;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;
 import org.processmining.models.relation.RelationModel;
 
-public class ResourceRuleMatchingModel {
+public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 	
 	private ActivityModel trainingActModel;
 	private ActivityModel testActModel;
@@ -26,7 +30,7 @@ public class ResourceRuleMatchingModel {
 	private AnomalyProfileModel profileModel;
 	private AnomalyDetectionMiningParameters parameters;
 	
-	private float resourceScore;
+	private Map<String, ResourceScore> resourceScore;
 	
 	public ResourceRuleMatchingModel(ActivityModel trainingActModel, ActivityModel testActModel, 
 			RelationModel trainingRelModel, RelationModel testRelModel, 
@@ -42,22 +46,25 @@ public class ResourceRuleMatchingModel {
 		this.setProfileModel(profileModel);
 		this.setParameters(parameters);
 		
-		float logToRule = 100;
-		float ruleToLog = 100;
+		resourceScore = new HashMap<String, ResourceScore>(); // key: caseID, value: resource anomaly score
 		
-		resourceScore = 100;
+		ResourceScoreModel rsm = new ResourceScoreModel();
 		
 		float sigma = parameters.getSigma();
 		
 		// Cardinality
 		RelationMatrix trainingResourceMatrix = trainingRelModel.getRelationResourceMatrix();
 		int rRuleSize = trainingResourceMatrix.getRelationMatrixListSize();
-		int logSize = testRelModel.getRelationCardinality();
 		
 		/*
 		 * Rule to Log
 		 * */
 		Map<String, ArrayList<Relation>> normalInLog = new HashMap<String, ArrayList<Relation>>();
+		Map<String, Set<String>> normalSet = new HashMap<String, Set<String>>();
+		Map<String, ArrayList<String>> normalArrayList = new HashMap<String, ArrayList<String>>();
+		ArrayList<String> caseIDList = new ArrayList<String>();
+		caseIDList = testRelModel.getCaseIDList();
+		
 		ArrayList<Processing> processingList = new ArrayList<Processing>();
 		processingList = profileModel.getProcessingModel().getProcessingList_Res();
 		
@@ -73,11 +80,53 @@ public class ResourceRuleMatchingModel {
 		ArrayList<TrueY> trueYList = new ArrayList<TrueY>();
 		trueYList = profileModel.getTrueYModel().getTrueYList_Res();
 		
+		System.out.println("");
+		System.out.println("$$$$$ Resource Perspective Rule Matching");
+		
+		/*
+		 * Add Rules to the normalSet
+		 * */
+		for(int i = 0; i < caseIDList.size(); i++) {
+			String caseID = caseIDList.get(i);
+			Set<String> temp = new HashSet<String>();
+			
+			for(int j = 0; j < rRuleSize; j++) {
+				temp.add(trainingResourceMatrix.getPair(j));
+			}	
+			
+			normalSet.put(caseID, temp);
+		}
+		
+		/*
+		 * Add Log Relations to the normalArrayList
+		 * */
+		for(int i = 0; i < testRelModel.getRelationCardinality(); i++) {
+			String caseID = testRelModel.getCaseID(i);
+			
+			if(normalArrayList.containsKey(caseID)) {
+				ArrayList<String> temp = normalArrayList.get(caseID);
+				temp.add(testRelModel.getRelation(i).getResource());
+				normalArrayList.put(caseID, temp);
+			}else {
+				ArrayList<String> temp = new ArrayList<String>();
+				temp.add(testRelModel.getRelation(i).getResource());
+				normalArrayList.put(caseID, temp);
+			}
+		}
+		
+		/*
+		 * Resource Rule Matching Model
+		 * */
 		for(int i = 0; i < rRuleSize; i++) { // for each rule
 			
 			String trainingAntecedentResourceID = trainingResourceMatrix.getAntecedent(i);
 			String trainingConsequentResourceID = trainingResourceMatrix.getConsequent(i);
 			String trainingRelationType = trainingResourceMatrix.getRelationType(i);
+			
+			int ruleIdx = i+1;
+			
+			System.out.println(
+					"$$$$ Rule # " + ruleIdx + " (" + trainingAntecedentResourceID + " " + trainingRelationType + " " + trainingConsequentResourceID + ")");
 			
 			float trainingAntecedentResourceProcessingTimeLowerBoundary = 0;
 			float trainingAntecedentResourceProcessingTimeUpperBoundary = 0;
@@ -108,738 +157,691 @@ public class ResourceRuleMatchingModel {
 			}
 
 			// get lower and upper boundary for relation time, specific for its relation type
-			if(parameters.isTransition() && 
-					trainingRelationType.equals("<")) {
+			if(parameters.isTransition()){
 				for(int j = 0; j < transitionList.size(); j++) {
-					if(transitionList.get(j).getFromResourceID().equals(trainingAntecedentResourceID) && transitionList.get(j).getToResourceID().equals(trainingConsequentResourceID)) {
+					if(transitionList.get(j).getFromResourceID().equals(trainingAntecedentResourceID) 
+							&& transitionList.get(j).getToResourceID().equals(trainingConsequentResourceID)
+							&& transitionList.get(j).getRelation().equals(trainingRelationType)) {
 						trainingTransitionTimeLowerBoundary = transitionList.get(j).getAvg() - sigma*transitionList.get(j).getStdev();
 						trainingTransitionTimeUpperBoundary = transitionList.get(j).getAvg() + sigma*transitionList.get(j).getStdev();
 					}
 				}
 			}
 			
-			if(parameters.isOverlap() && (
-					trainingRelationType.equals("o") 
-					|| trainingRelationType.equals("d")
-					|| trainingRelationType.equals("s")
-					|| trainingRelationType.equals("f")
-					|| trainingRelationType.equals("="))) {
+			if(parameters.isOverlap()) {
 				for(int j = 0; j < overlapList.size(); j++) {
-					if(overlapList.get(j).getFromResourceID().equals(trainingAntecedentResourceID) && overlapList.get(j).getToResourceID().equals(trainingConsequentResourceID)) {
+					if(overlapList.get(j).getFromResourceID().equals(trainingAntecedentResourceID) 
+							&& overlapList.get(j).getToResourceID().equals(trainingConsequentResourceID)
+							&& overlapList.get(j).getRelation().equals(trainingRelationType)) {
 						trainingOverlapTimeLowerBoundary = overlapList.get(j).getAvg() - sigma*overlapList.get(j).getStdev();
 						trainingOverlapTimeUpperBoundary = overlapList.get(j).getAvg() + sigma*overlapList.get(j).getStdev();
 					}
 				}
 			}
 			
-			if(parameters.isTrueX() && (
-					trainingRelationType.equals("o")
-					|| trainingRelationType.equals("d")
-					|| trainingRelationType.equals("f")
-					)) {
+			if(parameters.isTrueX()) {
 				for(int j = 0; j < trueXList.size(); j++) {
-					if(trueXList.get(j).getFromResourceID().equals(trainingAntecedentResourceID) && trueXList.get(j).getToResourceID().equals(trainingConsequentResourceID)) {
+					if(trueXList.get(j).getFromResourceID().equals(trainingAntecedentResourceID) 
+							&& trueXList.get(j).getToResourceID().equals(trainingConsequentResourceID)
+							&& trueXList.get(j).getRelation().equals(trainingRelationType)) {
 						trainingTrueXTimeLowerBoundary = trueXList.get(j).getAvg() - sigma*trueXList.get(j).getStdev();
 						trainingTrueXTimeUpperBoundary = trueXList.get(j).getAvg() + sigma*trueXList.get(j).getStdev();
 					}
 				}
 			}
 			
-			if(parameters.isTrueY() &&
-					trainingRelationType.equals("o")
-					|| trainingRelationType.equals("s")
-					|| trainingRelationType.equals("d")
-					) {
+			if(parameters.isTrueY()) {
 				for(int j = 0; j < trueYList.size(); j++) {
-					if(trueYList.get(j).getFromResourceID().equals(trainingAntecedentResourceID) && trueYList.get(j).getToResourceID().equals(trainingConsequentResourceID)) {
+					if(trueYList.get(j).getFromResourceID().equals(trainingAntecedentResourceID) 
+							&& trueYList.get(j).getToResourceID().equals(trainingConsequentResourceID)
+							&& trueYList.get(j).getRelation().equals(trainingRelationType)) {
 						trainingTrueYTimeLowerBoundary = trueYList.get(j).getAvg() - sigma*trueYList.get(j).getStdev();
 						trainingTrueYTimeUpperBoundary = trueYList.get(j).getAvg() + sigma*trueYList.get(j).getStdev();
 					}
 				}
 			}
-			
-			boolean isChecked = false;
-			
-			// check if current rule exists in the log (by case)
-			for(int j = 0; j < logSize; j++) {
 				
-				String caseID = testRelModel.getCaseID(j);				
-				String testAntecedentResourceID = testRelModel.getAntecedentResource(j);
-				String testConsequentResourceID = testRelModel.getConsequentResource(j);
-				String testRelationType = testRelModel.getRelationType(j);
-				
-				float testAntecedentResourceProcessingTime = testRelModel.getAntecedentActivity(j).getProcessingTime();
-				float testConsequentResourceProcessingTime = testRelModel.getConsequentActivity(j).getProcessingTime();
-				
-				float testTransitionTime = testRelModel.getTransitionTime(j);
-				float testOverlapTime = testRelModel.getOverlapTime(j);
-				float testTrueXTime = testRelModel.getTrueXTime(j);
-				float testTrueYTime = testRelModel.getTrueYTime(j);
-				
-				boolean processing = false;
-				boolean transition = false;
-				boolean overlap = false;
-				boolean trueX = false;
-				boolean trueY = false;
-				
-				// rule 1
-				if(testRelationType.equals("<")) {
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isProcessing()) {
-							if(trainingAntecedentResourceProcessingTimeLowerBoundary < testAntecedentResourceProcessingTime && testAntecedentResourceProcessingTime < trainingAntecedentResourceProcessingTimeUpperBoundary) {
-								if(trainingConsequentResourceProcessingTimeLowerBoundary < testConsequentResourceProcessingTime && testConsequentResourceProcessingTime < trainingConsequentResourceProcessingTimeUpperBoundary) {
-									processing = true;	
-								}
-							}
-						}else { // if not needed
-							processing = true;
-						}
-						
-						if(parameters.isTransition()) {
-							if(trainingTransitionTimeLowerBoundary < testTransitionTime && testTransitionTime < trainingTransitionTimeUpperBoundary) {
-								transition = true;
-							}
-						}else {
-							transition = true;
-						}
-						
-						if(processing && transition) {
-							if(normalInLog.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInLog.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);	
-							}
-							isChecked = true;
-						}					
-					}
-				}else if(testRelationType.equals("m")) {// rule 2
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isProcessing()) {
-							if(trainingAntecedentResourceProcessingTimeLowerBoundary < testAntecedentResourceProcessingTime && testAntecedentResourceProcessingTime < trainingAntecedentResourceProcessingTimeUpperBoundary) {
-								if(trainingConsequentResourceProcessingTimeLowerBoundary < testConsequentResourceProcessingTime && testConsequentResourceProcessingTime < trainingConsequentResourceProcessingTimeUpperBoundary) {
-									processing = true;	
-								}
-							}
-						}else { // if not needed
-							processing = true;
-						}
-						
-						if(processing) {
-							if(normalInLog.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInLog.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);	
-							}
-							isChecked = true;
-						}					
-					}
-				}else if(testRelationType.equals("o")) {// rule 3
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
-								overlap = true;
-							}
-						}else {
-							overlap = true;
-						}
-						
-						if(parameters.isTrueX()) {
-							if(trainingTrueXTimeLowerBoundary < testTrueXTime && testTrueXTime < trainingTrueXTimeUpperBoundary) {
-								trueX = true;
-							}
-						}else {
-							trueX = true;
-						}
-						
-						if(parameters.isTrueY()) {
-							if(trainingTrueYTimeLowerBoundary < testTrueYTime && testTrueYTime < trainingTrueYTimeUpperBoundary) {
-								trueY = true;
-							}
-						}else {
-							trueY = true;
-						}
-						
-						if(overlap && trueX && trueY) {
-							if(normalInLog.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInLog.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);	
-							}
-							isChecked = true;
-						}					
-					}
-				}else if(testRelationType.equals("s")) {// rule 4
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
-								overlap = true;
-							}
-						}else {
-							overlap = true;
-						}
-						
-						if(parameters.isTrueY()) {
-							if(trainingTrueYTimeLowerBoundary < testTrueYTime && testTrueYTime < trainingTrueYTimeUpperBoundary) {
-								trueY = true;
-							}
-						}else {
-							trueY = true;
-						}
-						
-						if(overlap && trueY) {
-							if(normalInLog.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInLog.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);	
-							}
-							isChecked = true;
-						}					
-					}
-				}else if(testRelationType.equals("d")) {// rule 5
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
-								overlap = true;
-							}
-						}else {
-							overlap = true;
-						}
-						
-						if(parameters.isTrueX()) {
-							if(trainingTrueXTimeLowerBoundary < testTrueXTime && testTrueXTime < trainingTrueXTimeUpperBoundary) {
-								trueX = true;
-							}
-						}else {
-							trueX = true;
-						}
-						
-						if(parameters.isTrueY()) {
-							if(trainingTrueYTimeLowerBoundary < testTrueYTime && testTrueYTime < trainingTrueYTimeUpperBoundary) {
-								trueY = true;
-							}
-						}else {
-							trueY = true;
-						}
-						
-						if(overlap && trueX && trueY) {
-							if(normalInLog.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInLog.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);	
-							}
-							isChecked = true;
-						}					
-					}
-				}else if(testRelationType.equals("f")) {// rule 6
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
-								overlap = true;
-							}
-						}else {
-							overlap = true;
-						}
-						
-						if(parameters.isTrueX()) {
-							if(trainingTrueXTimeLowerBoundary < testTrueXTime && testTrueXTime < trainingTrueXTimeUpperBoundary) {
-								trueX = true;
-							}
-						}else {
-							trueY = true;
-						}
-						
-						if(overlap && trueX) {
-							if(normalInLog.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInLog.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);	
-							}
-							isChecked = true;
-						}					
-					}
-				}else if(testRelationType.equals("=")) {// rule 7
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
-								overlap = true;
-							}
-						}else {
-							overlap = true;
-						}
-						
-						if(overlap) {
-							if(normalInLog.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInLog.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInLog.put(caseID, temp);	
-							}
-							isChecked = true;
-						}					
-					}
-				}
-				
-				if(isChecked) {
-					break;
-				}
-			}
-		}
-		
-		Iterator<String> keys = normalInLog.keySet().iterator();
-		System.out.println("Rule To Log");
-		while(keys.hasNext()) {
-			String key = keys.next();
-			System.out.println(
-					"Case ID: " + key + 
-					": " + normalInLog.get(key).size() + " / " + rRuleSize + 
-					" = " + calculateRuleToLogScore(rRuleSize, normalInLog.get(key).size()));			
-		}
-		
-		/*
-		 * Log to Rule
-		 * */
-		Map<String, ArrayList<Relation>> normalInRules = new HashMap<String, ArrayList<Relation>>();
-		
-		for(int i = 0; i < logSize; i++) { // for each rule
-			String caseID = testRelModel.getCaseID(i);
-			String testAntecedentResourceID = testRelModel.getAntecedentResource(i); 					
-			String testConsequentResourceID = testRelModel.getConsequentResource(i);
-			String testRelationType = testRelModel.getRelationType(i);
-			
-			float trainingAntecedentResourceProcessingTimeLowerBoundary = 0;
-			float trainingAntecedentResourceProcessingTimeUpperBoundary = 0;
-			float trainingConsequentResourceProcessingTimeLowerBoundary = 0;
-			float trainingConsequentResourceProcessingTimeUpperBoundary = 0;
-			float trainingTransitionTimeLowerBoundary = 0;
-			float trainingTransitionTimeUpperBoundary = 0;
-			float trainingOverlapTimeLowerBoundary = 0;
-			float trainingOverlapTimeUpperBoundary = 0;
-			float trainingTrueXTimeLowerBoundary = 0;
-			float trainingTrueXTimeUpperBoundary = 0;
-			float trainingTrueYTimeLowerBoundary = 0;
-			float trainingTrueYTimeUpperBoundary = 0;
-			
-			// get lower and upper boundary for processing time of antecedent and consequent
-			if(parameters.isProcessing()) {
-				for(int j = 0; j < processingList.size(); j++) {
-					if(processingList.get(j).getResourceID().equals(testAntecedentResourceID)) {
-						trainingAntecedentResourceProcessingTimeLowerBoundary = processingList.get(j).getAvg() - sigma*processingList.get(j).getStdev();
-						trainingAntecedentResourceProcessingTimeUpperBoundary = processingList.get(j).getAvg() + sigma*processingList.get(j).getStdev();	
-					}
-					
-					if(processingList.get(j).getResourceID().equals(testConsequentResourceID)) {
-						trainingConsequentResourceProcessingTimeLowerBoundary = processingList.get(j).getAvg() - sigma*processingList.get(j).getStdev();
-						trainingConsequentResourceProcessingTimeUpperBoundary = processingList.get(j).getAvg() + sigma*processingList.get(j).getStdev();
-					}
-				}
-			}
+			// for each unique case ID
+			for(int k = 0; k < caseIDList.size(); k++) {
 
-			// get lower and upper boundary for relation time, specific for its relation type
-			if(parameters.isTransition() && 
-					testRelationType.equals("<")) {
-				for(int j = 0; j < transitionList.size(); j++) {
-					if(transitionList.get(j).getFromResourceID().equals(testAntecedentResourceID) && transitionList.get(j).getToResourceID().equals(testConsequentResourceID)) {
-						trainingTransitionTimeLowerBoundary = transitionList.get(j).getAvg() - sigma*transitionList.get(j).getStdev();
-						trainingTransitionTimeUpperBoundary = transitionList.get(j).getAvg() + sigma*transitionList.get(j).getStdev();
-					}
-				}
-			}
-			
-			if(parameters.isOverlap() && (
-					testRelationType.equals("o") 
-					|| testRelationType.equals("d")
-					|| testRelationType.equals("s")
-					|| testRelationType.equals("f")
-					|| testRelationType.equals("="))) {
-				for(int j = 0; j < overlapList.size(); j++) {
-					if(overlapList.get(j).getFromResourceID().equals(testAntecedentResourceID) && overlapList.get(j).getToResourceID().equals(testConsequentResourceID)) {
-						trainingOverlapTimeLowerBoundary = overlapList.get(j).getAvg() - sigma*overlapList.get(j).getStdev();
-						trainingOverlapTimeUpperBoundary = overlapList.get(j).getAvg() + sigma*overlapList.get(j).getStdev();
-					}
-				}
-			}
-			
-			if(parameters.isTrueX() && (
-					testRelationType.equals("o")
-					|| testRelationType.equals("d")
-					|| testRelationType.equals("f")
-					)) {
-				for(int j = 0; j < trueXList.size(); j++) {
-					if(trueXList.get(j).getFromResourceID().equals(testAntecedentResourceID) && trueXList.get(j).getToResourceID().equals(testConsequentResourceID)) {
-						trainingTrueXTimeLowerBoundary = trueXList.get(j).getAvg() - sigma*trueXList.get(j).getStdev();
-						trainingTrueXTimeUpperBoundary = trueXList.get(j).getAvg() + sigma*trueXList.get(j).getStdev();
-					}
-				}
-			}
-			
-			if(parameters.isTrueY() &&
-					testRelationType.equals("o")
-					|| testRelationType.equals("s")
-					|| testRelationType.equals("d")
-					) {
-				for(int j = 0; j < trueYList.size(); j++) {
-					if(trueYList.get(j).getFromResourceID().equals(testAntecedentResourceID) && trueYList.get(j).getToResourceID().equals(testConsequentResourceID)) {
-						trainingTrueYTimeLowerBoundary = trueYList.get(j).getAvg() - sigma*trueYList.get(j).getStdev();
-						trainingTrueYTimeUpperBoundary = trueYList.get(j).getAvg() + sigma*trueYList.get(j).getStdev();
-					}
-				}
-			}
-			
-			// check if current log exists in the rule (by case)
-			for(int j = 0; j < rRuleSize; j++) {
+				// get testRelModel for that specific case ID
+				String caseID = caseIDList.get(k);
+				RelationModel testRelModelByCase = new RelationModel(this.testActModel, caseID);
+				int logSizeByCase = testRelModelByCase.getCaseSize(caseID);
 				
-				String trainingAntecedentResourceID = trainingResourceMatrix.getAntecedent(j);
-				String trainingConsequentResourceID = trainingResourceMatrix.getConsequent(j);
-				String trainingRelationType = trainingResourceMatrix.getRelationType(j);
+				boolean doesRuleExist = false;
+				String reason = "";
 				
-				float testAntecedentResourceProcessingTime = testRelModel.getAntecedentActivity(i).getProcessingTime();
-				float testConsequentResourceProcessingTime = testRelModel.getConsequentActivity(i).getProcessingTime();
-				
-				float testTransitionTime = testRelModel.getTransitionTime(i);
-				float testOverlapTime = testRelModel.getOverlapTime(i);
-				float testTrueXTime = testRelModel.getTrueXTime(i);
-				float testTrueYTime = testRelModel.getTrueYTime(i);
-				
-				boolean processing = false;
-				boolean transition = false;
-				boolean overlap = false;
-				boolean trueX = false;
-				boolean trueY = false;
-				
-				// rule 1
-				if(trainingRelationType.equals("<")) {
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isProcessing()) {
-							if(trainingAntecedentResourceProcessingTimeLowerBoundary < testAntecedentResourceProcessingTime && testAntecedentResourceProcessingTime < trainingAntecedentResourceProcessingTimeUpperBoundary) {
-								if(trainingConsequentResourceProcessingTimeLowerBoundary < testConsequentResourceProcessingTime && testConsequentResourceProcessingTime < trainingConsequentResourceProcessingTimeUpperBoundary) {
-									processing = true;	
+				// check if current rule exists in the log (by case)
+				for(int j = 0; j < logSizeByCase; j++) {
+					
+					String testAntecedentResourceID = testRelModelByCase.getAntecedentResource(j);
+					String testConsequentResourceID = testRelModelByCase.getConsequentResource(j);
+					String testRelationType = testRelModelByCase.getRelationType(j);
+					
+					float testAntecedentResourceProcessingTime = testRelModelByCase.getAntecedentActivity(j).getProcessingTime();
+					float testConsequentResourceProcessingTime = testRelModelByCase.getConsequentActivity(j).getProcessingTime();
+					
+					float testTransitionTime = testRelModelByCase.getTransitionTime(j);
+					float testOverlapTime = testRelModelByCase.getOverlapTime(j);
+					float testTrueXTime = testRelModelByCase.getTrueXTime(j);
+					float testTrueYTime = testRelModelByCase.getTrueYTime(j);
+					
+					boolean processing = false;
+					boolean transition = false;
+					boolean overlap = false;
+					boolean trueX = false;
+					boolean trueY = false;
+					
+					if(trainingRelationType.equals(testRelationType) 
+							&& trainingAntecedentResourceID.equals(testAntecedentResourceID) 
+							&& trainingConsequentResourceID.equals(testConsequentResourceID)) {
+						// rule 1
+						if(trainingRelationType.equals("<")) {
+							// if this needs to be compared
+							if(parameters.isProcessing()) {
+								// check the processing time of antecedent activities
+								if(trainingAntecedentResourceProcessingTimeLowerBoundary <= testAntecedentResourceProcessingTime && testAntecedentResourceProcessingTime <= trainingAntecedentResourceProcessingTimeUpperBoundary) {
+									if(trainingConsequentResourceProcessingTimeLowerBoundary <= testConsequentResourceProcessingTime && testConsequentResourceProcessingTime <= trainingConsequentResourceProcessingTimeUpperBoundary) {
+										processing = true;
+										
+									}
 								}
+							}else { // if not needed
+								processing = true;
 							}
-						}else { // if not needed
-							processing = true;
-						}
-						
-						if(parameters.isTransition()) {
-							if(trainingTransitionTimeLowerBoundary < testTransitionTime && testTransitionTime < trainingTransitionTimeUpperBoundary) {
+							
+							// if this needs to be compared
+							if(parameters.isTransition()) {
+								if(trainingTransitionTimeLowerBoundary <= testTransitionTime && testTransitionTime <= trainingTransitionTimeUpperBoundary) {
+									transition = true;
+									
+								}
+							}else {
 								transition = true;
 							}
-						}else {
-							transition = true;
-						}
-						
-						if(processing && transition) {
-							if(normalInRules.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInRules.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);	
-							}
-						}					
-					}
-				}else if(trainingRelationType.equals("m")) {// rule 2
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isProcessing()) {
-							if(trainingAntecedentResourceProcessingTimeLowerBoundary < testAntecedentResourceProcessingTime && testAntecedentResourceProcessingTime < trainingAntecedentResourceProcessingTimeUpperBoundary) {
-								if(trainingConsequentResourceProcessingTimeLowerBoundary < testConsequentResourceProcessingTime && testConsequentResourceProcessingTime < trainingConsequentResourceProcessingTimeUpperBoundary) {
-									processing = true;	
+							
+							if(processing && transition) {
+								doesRuleExist = true;
+								reason = reason + "successful";
+								Iterator<String> iter2 = normalArrayList.get(caseID).iterator();
+								while(iter2.hasNext()) {
+									String temp = iter2.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										normalArrayList.get(caseID).remove(temp);
+										break;
+									}
+								}
+								
+								Iterator<String> iter = normalSet.get(caseID).iterator();
+								while(iter.hasNext()) {
+									String temp = iter.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										//System.out.println("Found!");
+										//System.out.println(normalSet.get(caseID).remove(temp));
+										normalSet.get(caseID).remove(temp);
+										break;
+									}
 								}
 							}
-						}else { // if not needed
-							processing = true;
-						}
-						
-						if(processing) {
-							if(normalInRules.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInRules.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);	
+							
+							if(!processing) {
+								reason 
+								= reason + "processing time not matched. Ante: "
+								+ testAntecedentResourceProcessingTime
+								+ " -> [" 
+								+ trainingAntecedentResourceProcessingTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingAntecedentResourceProcessingTimeUpperBoundary 
+								+ "], Conseq: "
+								+ testConsequentResourceProcessingTime
+								+ " -> ["
+								+ trainingConsequentResourceProcessingTimeLowerBoundary
+								+ " ~ "
+								+ trainingConsequentResourceProcessingTimeUpperBoundary 
+								+ "] AND ";
 							}
-						}					
-					}
-				}else if(trainingRelationType.equals("o")) {// rule 3
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
+							
+							if(!transition) {
+								reason 
+								= reason 
+								+ "transition time not matched. Tran. Time: " 
+								+ testTransitionTime 
+								+ " -> [" 
+								+ trainingTransitionTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingTransitionTimeUpperBoundary 
+								+ "]";
+							}
+							
+						}else if(trainingRelationType.equals("m")) {// rule 2
+							// if this needs to be compared
+							if(parameters.isProcessing()) {
+								if(trainingAntecedentResourceProcessingTimeLowerBoundary <= testAntecedentResourceProcessingTime && testAntecedentResourceProcessingTime <= trainingAntecedentResourceProcessingTimeUpperBoundary) {
+									if(trainingConsequentResourceProcessingTimeLowerBoundary <= testConsequentResourceProcessingTime && testConsequentResourceProcessingTime <= trainingConsequentResourceProcessingTimeUpperBoundary) {
+										processing = true;	
+									}
+								}
+							}else { // if not needed
+								processing = true;
+							}
+							
+							if(processing) {
+								doesRuleExist = true;
+								reason = reason + "successful";
+								Iterator<String> iter2 = normalArrayList.get(caseID).iterator();
+								while(iter2.hasNext()) {
+									String temp = iter2.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										normalArrayList.get(caseID).remove(temp);
+										break;
+									}
+								}
+								
+								Iterator<String> iter = normalSet.get(caseID).iterator();
+								while(iter.hasNext()) {
+									String temp = iter.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										//System.out.println("Found!");
+										//System.out.println(normalSet.get(caseID).remove(temp));
+										normalSet.get(caseID).remove(temp);
+										break;
+									}
+								}
+							}
+							
+							if(!processing) {
+								reason 
+								= reason + "processing time not matched. Ante: "
+								+ testAntecedentResourceProcessingTime
+								+ " -> [" 
+								+ trainingAntecedentResourceProcessingTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingAntecedentResourceProcessingTimeUpperBoundary 
+								+ "], Conseq: "
+								+ testConsequentResourceProcessingTime
+								+ " -> ["
+								+ trainingConsequentResourceProcessingTimeLowerBoundary
+								+ " ~ "
+								+ trainingConsequentResourceProcessingTimeUpperBoundary 
+								+ "] AND ";
+							}
+							
+						}else if(trainingRelationType.equals("o")) {// rule 3
+							 
+							// check the processing time of antecedent activities
+							// if this needs to be compared
+							if(parameters.isOverlap()) {
+								if(trainingOverlapTimeLowerBoundary <= testOverlapTime && testOverlapTime <= trainingOverlapTimeUpperBoundary) {
+									overlap = true;
+								}
+							}else {
 								overlap = true;
 							}
-						}else {
-							overlap = true;
-						}
-						
-						if(parameters.isTrueX()) {
-							if(trainingTrueXTimeLowerBoundary < testTrueXTime && testTrueXTime < trainingTrueXTimeUpperBoundary) {
+							
+							if(parameters.isTrueX()) {
+								if(trainingTrueXTimeLowerBoundary <= testTrueXTime && testTrueXTime <= trainingTrueXTimeUpperBoundary) {
+									trueX = true;
+								}
+							}else {
 								trueX = true;
 							}
-						}else {
-							trueX = true;
-						}
-						
-						if(parameters.isTrueY()) {
-							if(trainingTrueYTimeLowerBoundary < testTrueYTime && testTrueYTime < trainingTrueYTimeUpperBoundary) {
+							
+							if(parameters.isTrueY()) {
+								if(trainingTrueYTimeLowerBoundary <= testTrueYTime && testTrueYTime <= trainingTrueYTimeUpperBoundary) {
+									trueY = true;
+								}
+							}else {
 								trueY = true;
 							}
-						}else {
-							trueY = true;
-						}
-						
-						if(overlap && trueX && trueY) {
-							if(normalInRules.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInRules.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);	
+							
+							if(overlap && trueX && trueY) {
+								doesRuleExist = true;
+								reason = reason + "successful";
+								Iterator<String> iter2 = normalArrayList.get(caseID).iterator();
+								while(iter2.hasNext()) {
+									String temp = iter2.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										normalArrayList.get(caseID).remove(temp);
+										break;
+									}
+								}
+								
+								Iterator<String> iter = normalSet.get(caseID).iterator();
+								while(iter.hasNext()) {
+									String temp = iter.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										//System.out.println("Found!");
+										//System.out.println(normalSet.get(caseID).remove(temp));
+										normalSet.get(caseID).remove(temp);
+										break;
+									}
+								}
 							}
-						}					
-					}
-				}else if(trainingRelationType.equals("s")) {// rule 4
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
+							
+							if(!overlap) {
+								reason 
+								= reason 
+								+ "Overlap time not matched. Overlap Time: " 
+								+ testOverlapTime 
+								+ " -> [" 
+								+ trainingOverlapTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingOverlapTimeUpperBoundary 
+								+ "]";
+							}
+							
+							if(!trueX) {
+								reason 
+								= reason 
+								+ "TrueX time not matched. TrueX Time: " 
+								+ testTrueXTime 
+								+ " -> [" 
+								+ trainingTrueXTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingTrueXTimeUpperBoundary 
+								+ "]";
+							}
+							
+							if(!trueY) {
+								reason 
+								= reason 
+								+ "TrueY time not matched. TrueX Time: " 
+								+ testTrueYTime 
+								+ " -> [" 
+								+ trainingTrueYTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingTrueYTimeUpperBoundary 
+								+ "]";
+							}
+							
+						}else if(testRelationType.equals("s")) {// rule 4
+							 
+							// check the processing time of antecedent activities
+							// if this needs to be compared
+							if(parameters.isOverlap()) {
+								if(trainingOverlapTimeLowerBoundary <= testOverlapTime && testOverlapTime <= trainingOverlapTimeUpperBoundary) {
+									overlap = true;
+								}
+							}else {
 								overlap = true;
 							}
-						}else {
-							overlap = true;
-						}
-						
-						if(parameters.isTrueY()) {
-							if(trainingTrueYTimeLowerBoundary < testTrueYTime && testTrueYTime < trainingTrueYTimeUpperBoundary) {
+							
+							if(parameters.isTrueY()) {
+								if(trainingTrueYTimeLowerBoundary <= testTrueYTime && testTrueYTime <= trainingTrueYTimeUpperBoundary) {
+									trueY = true;
+								}
+							}else {
 								trueY = true;
 							}
-						}else {
-							trueY = true;
-						}
-						
-						if(overlap && trueY) {
-							if(normalInRules.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInRules.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);	
+							
+							if(overlap && trueY) {
+								doesRuleExist = true;
+								reason = reason + "successful";
+								Iterator<String> iter2 = normalArrayList.get(caseID).iterator();
+								while(iter2.hasNext()) {
+									String temp = iter2.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										normalArrayList.get(caseID).remove(temp);
+										break;
+									}
+								}
+								
+								Iterator<String> iter = normalSet.get(caseID).iterator();
+								while(iter.hasNext()) {
+									String temp = iter.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										//System.out.println("Found!");
+										//System.out.println(normalSet.get(caseID).remove(temp));
+										normalSet.get(caseID).remove(temp);
+										break;
+									}
+								}
+							}	
+							
+							if(!overlap) {
+								reason 
+								= reason 
+								+ "Overlap time not matched. Overlap Time: " 
+								+ testOverlapTime 
+								+ " -> [" 
+								+ trainingOverlapTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingOverlapTimeUpperBoundary 
+								+ "]";
 							}
-						}					
-					}
-				}else if(trainingRelationType.equals("d")) {// rule 5
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
+							
+							if(!trueY) {
+								reason 
+								= reason 
+								+ "TrueY time not matched. TrueX Time: " 
+								+ testTrueYTime 
+								+ " -> [" 
+								+ trainingTrueYTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingTrueYTimeUpperBoundary 
+								+ "]";
+							}
+							
+						}else if(trainingRelationType.equals("d")) {// rule 5
+							 
+							// check the processing time of antecedent activities
+							// if this needs to be compared
+							if(parameters.isOverlap()) {
+								if(trainingOverlapTimeLowerBoundary <= testOverlapTime && testOverlapTime <= trainingOverlapTimeUpperBoundary) {
+									overlap = true;
+								}
+							}else {
 								overlap = true;
 							}
-						}else {
-							overlap = true;
-						}
-						
-						if(parameters.isTrueX()) {
-							if(trainingTrueXTimeLowerBoundary < testTrueXTime && testTrueXTime < trainingTrueXTimeUpperBoundary) {
+							
+							if(parameters.isTrueX()) {
+								if(trainingTrueXTimeLowerBoundary <= testTrueXTime && testTrueXTime <= trainingTrueXTimeUpperBoundary) {
+									trueX = true;
+								}
+							}else {
 								trueX = true;
 							}
-						}else {
-							trueX = true;
-						}
-						
-						if(parameters.isTrueY()) {
-							if(trainingTrueYTimeLowerBoundary < testTrueYTime && testTrueYTime < trainingTrueYTimeUpperBoundary) {
+							
+							if(parameters.isTrueY()) {
+								if(trainingTrueYTimeLowerBoundary <= testTrueYTime && testTrueYTime <= trainingTrueYTimeUpperBoundary) {
+									trueY = true;
+								}
+							}else {
 								trueY = true;
 							}
-						}else {
-							trueY = true;
-						}
-						
-						if(overlap && trueX && trueY) {
-							if(normalInRules.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInRules.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);	
+							
+							if(overlap && trueX && trueY) {
+								doesRuleExist = true;
+								reason = reason + "successful";
+								Iterator<String> iter2 = normalArrayList.get(caseID).iterator();
+								while(iter2.hasNext()) {
+									String temp = iter2.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										normalArrayList.get(caseID).remove(temp);
+										break;
+									}
+								}
+								
+								Iterator<String> iter = normalSet.get(caseID).iterator();
+								while(iter.hasNext()) {
+									String temp = iter.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										//System.out.println("Found!");
+										//System.out.println(normalSet.get(caseID).remove(temp));
+										normalSet.get(caseID).remove(temp);
+										break;
+									}
+								}
+							}		
+							
+							if(!overlap) {
+								reason 
+								= reason 
+								+ "Overlap time not matched. Overlap Time: " 
+								+ testOverlapTime 
+								+ " -> [" 
+								+ trainingOverlapTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingOverlapTimeUpperBoundary 
+								+ "]";
 							}
-						}					
-					}
-				}else if(trainingRelationType.equals("f")) {// rule 6
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
+							
+							if(!trueX) {
+								reason 
+								= reason 
+								+ "TrueX time not matched. TrueX Time: " 
+								+ testTrueXTime 
+								+ " -> [" 
+								+ trainingTrueXTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingTrueXTimeUpperBoundary 
+								+ "]";
+							}
+							
+							if(!trueY) {
+								reason 
+								= reason 
+								+ "TrueY time not matched. TrueX Time: " 
+								+ testTrueYTime 
+								+ " -> [" 
+								+ trainingTrueYTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingTrueYTimeUpperBoundary 
+								+ "]";
+							}
+							
+						}else if(trainingRelationType.equals("f")) {// rule 6
+							 
+							// check the processing time of antecedent activities
+							// if this needs to be compared
+							if(parameters.isOverlap()) {
+								if(trainingOverlapTimeLowerBoundary <= testOverlapTime && testOverlapTime <= trainingOverlapTimeUpperBoundary) {
+									overlap = true;
+								}
+							}else {
 								overlap = true;
 							}
-						}else {
-							overlap = true;
-						}
-						
-						if(parameters.isTrueX()) {
-							if(trainingTrueXTimeLowerBoundary < testTrueXTime && testTrueXTime < trainingTrueXTimeUpperBoundary) {
-								trueX = true;
+							
+							if(parameters.isTrueX()) {
+								if(trainingTrueXTimeLowerBoundary <= testTrueXTime && testTrueXTime <= trainingTrueXTimeUpperBoundary) {
+									trueX = true;
+								}
+							}else {
+								trueY = true;
 							}
-						}else {
-							trueY = true;
-						}
-						
-						if(overlap && trueX) {
-							if(normalInRules.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInRules.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);	
+							
+							if(overlap && trueX) {
+								doesRuleExist = true;
+								reason = reason + "successful";
+								Iterator<String> iter2 = normalArrayList.get(caseID).iterator();
+								while(iter2.hasNext()) {
+									String temp = iter2.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										normalArrayList.get(caseID).remove(temp);
+										break;
+									}
+								}
+								
+								Iterator<String> iter = normalSet.get(caseID).iterator();
+								while(iter.hasNext()) {
+									String temp = iter.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										//System.out.println("Found!");
+										//System.out.println(normalSet.get(caseID).remove(temp));
+										normalSet.get(caseID).remove(temp);
+										break;
+									}
+								}
+							}		
+							
+							if(!overlap) {
+								reason 
+								= reason 
+								+ "Overlap time not matched. Overlap Time: " 
+								+ testOverlapTime 
+								+ " -> [" 
+								+ trainingOverlapTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingOverlapTimeUpperBoundary 
+								+ "]";
 							}
-						}					
-					}
-				}else if(trainingRelationType.equals("=")) {// rule 7
-					// check the activities
-					if(trainingAntecedentResourceID.equals(testAntecedentResourceID) && trainingConsequentResourceID.equals(testConsequentResourceID)) { 
-						// check the processing time of antecedent activities
-						// if this needs to be compared
-						if(parameters.isOverlap()) {
-							if(trainingOverlapTimeLowerBoundary < testOverlapTime && testOverlapTime < trainingOverlapTimeUpperBoundary) {
+							
+							if(!trueX) {
+								reason 
+								= reason 
+								+ "TrueX time not matched. TrueX Time: " 
+								+ testTrueXTime 
+								+ " -> [" 
+								+ trainingTrueXTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingTrueXTimeUpperBoundary 
+								+ "]";
+							}
+						}else if(trainingRelationType.equals("=")) {// rule 7
+							 
+							// check the processing time of antecedent activities
+							// if this needs to be compared
+							if(parameters.isOverlap()) {
+								if(trainingOverlapTimeLowerBoundary <= testOverlapTime && testOverlapTime <= trainingOverlapTimeUpperBoundary) {
+									overlap = true;
+								}
+							}else {
 								overlap = true;
 							}
-						}else {
-							overlap = true;
-						}
-						
-						if(overlap) {
-							if(normalInRules.containsKey(caseID)) { // if the key already exists
-								ArrayList<Relation> temp = normalInRules.get(caseID);
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);
-							}else { // if there exists no key
-								ArrayList<Relation> temp = new ArrayList<Relation>();
-								temp.add(testRelModel.getRelation(j));
-								normalInRules.put(caseID, temp);	
+							
+							if(overlap) {
+								doesRuleExist = true;
+								reason = reason + "successful";
+								Iterator<String> iter2 = normalArrayList.get(caseID).iterator();
+								while(iter2.hasNext()) {
+									String temp = iter2.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										normalArrayList.get(caseID).remove(temp);
+										break;
+									}
+								}
+								
+								Iterator<String> iter = normalSet.get(caseID).iterator();
+								while(iter.hasNext()) {
+									String temp = iter.next();
+									
+									if(temp.equals(testRelModelByCase.getRelation(j).getResource())) {
+										//System.out.println("Found!");
+										//System.out.println(normalSet.get(caseID).remove(temp));
+										normalSet.get(caseID).remove(temp);
+										break;
+									}
+								}
+							}					
+							
+							if(!overlap) {
+								reason 
+								= reason 
+								+ "Overlap time not matched. Overlap Time: " 
+								+ testOverlapTime 
+								+ " -> [" 
+								+ trainingOverlapTimeLowerBoundary 
+								+ " ~ " 
+								+ trainingOverlapTimeUpperBoundary 
+								+ "]";
 							}
-						}					
+						}
 					}
 				}
+				
+				if(reason.equals("")) {
+					reason = "rule does not match";
+				}
+				
+				//if(!doesRuleExist) {
+				System.out.println(
+						"$$$ " + caseID + 
+						": " + trainingAntecedentResourceID + 
+						" " + trainingRelationType + 
+						" " + trainingConsequentResourceID + 
+						" " + reason);
+				//}
 			}
 		}
 		
-		keys = normalInRules.keySet().iterator();
-		System.out.println("Log To Rule");
-		while(keys.hasNext()) {
-			String key = keys.next();
-			int caseSize = testRelModel.getCaseSize(key);
+		for(int k = 0; k < caseIDList.size(); k++) {
+			String key = caseIDList.get(k);
+			int denom, numer;
+			float ruleToLog;
+			
+			denom = rRuleSize;
+			numer = normalSet.get(key).size();
+			if(denom != 0) {
+				ruleToLog = divide(numer, denom);
+			}else {
+				ruleToLog = 0;
+			}
+			
 			System.out.println(
-					"Case ID: " + key + 
-					": " + normalInRules.get(key).size() + " / " + caseSize + 
-					" = " + calculateLogToRuleScore(caseSize, normalInRules.get(key).size()));			
-		}		
+					"Rule-To-Log - Case ID: " + key + 
+					": " + numer + " / " + denom + 
+					" = " + ruleToLog);
+			
+			rsm.addRuleToLogElem(key, ruleToLog);
+			
+			int caseSize = testRelModel.getCaseSize(key);
+			denom = caseSize;
+			numer = normalArrayList.get(key).size();
+			float logToRule;
+
+			if(denom != 0) {
+				logToRule = divide(numer, denom);
+			}else {
+				logToRule = 0;
+			}
+			System.out.println(
+					"Log-To-Rule - Case ID: " + key + 
+					": " + numer + " / " + denom + 
+					" = " + logToRule);
+			
+			rsm.addLogToRuleElem(key, logToRule);
+			
+			System.out.println("");
+		}
 		
 		/*
-		 * Control-flow Anomaly Score
+		Iterator<String> normalInLogkeys = normalInLog.keySet().iterator();
+		
+		while(normalInLogkeys.hasNext()) {
+			String key = normalInLogkeys.next();
+			
+			int denom, numer;
+			
+			denom = rRuleSize;
+			numer = normalSet.get(key).size();
+			
+			System.out.println(
+					"Rule-To-Log - Case ID: " + key + 
+					": " + numer + " / " + denom + 
+					" = " + divide(numer, denom));
+			
+			rsm.addRuleToLogElem(key, divide(numer, denom));
+			
+			int caseSize = testRelModel.getCaseSize(key);
+			denom = caseSize;
+			numer = caseSize - normalInLog.get(key).size();
+			//numer = caseSize - normalSet.get(key).size();
+			System.out.println(
+					"Log-To-Rule - Case ID: " + key + 
+					": " + numer + " / " + denom + 
+					" = " + divide(numer, denom));
+			
+			rsm.addLogToRuleElem(key, divide(numer, denom));
+			
+			System.out.println("");
+		}
+		*/
+		
+		/*
+		 * Resource Anomaly Score
 		 * */
-		calculateResourceScore(logToRule, ruleToLog);
-	}
-	
-	private float calculateRuleToLogScore(int rules, int matched) {
-		float result = 0;
-		
-		result = (float)((matched * 1.0) / rules);
-		
-		return result;
-	}
-	
-	private float calculateLogToRuleScore(int log, int matched) {
-		float result = 0;
-		
-		result = (float)((matched * 1.0) / log);
-		
-		return result;
-	}
-	
-	private void calculateResourceScore(float logToRule, float ruleToLog) {
-		float ratio = parameters.getLogRuleRatio();
-		resourceScore = ratio*logToRule + (1-ratio)*ruleToLog;
+		rsm.calculateResourceScore(parameters);
+		this.setResourceScore(rsm.getResourceScoreMap());
 	}
 	
 	/*
 	 * Getters and Setters
 	 * */
 	
-	public float getResourceScore() {
-		return resourceScore;
-	}
-
 	public ActivityModel getTrainingActModel() {
 		return trainingActModel;
 	}
@@ -879,6 +881,14 @@ public class ResourceRuleMatchingModel {
 	public void setProfileModel(AnomalyProfileModel profileModel) {
 		this.profileModel = profileModel;
 	}
+	
+	public Map<String, ResourceScore> getResourceScore() {
+		return resourceScore;
+	}
+	
+	public void setResourceScore(Map<String, ResourceScore> map) {
+		this.resourceScore = map;
+	}
 
 	public AnomalyDetectionMiningParameters getParameters() {
 		return parameters;
@@ -887,10 +897,4 @@ public class ResourceRuleMatchingModel {
 	public void setParameters(AnomalyDetectionMiningParameters parameters) {
 		this.parameters = parameters;
 	}
-
-	public void setResourceScore(float resourceScore) {
-		this.resourceScore = resourceScore;
-	}
-	
-	
 }

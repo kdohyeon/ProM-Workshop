@@ -70,7 +70,7 @@ public class AnomalyDetectionMiningDialog extends JPanel {
 		JLabel sigmaTitle = factory.createLabel("Sigma: ");
 		sigmaTitle.setFont(new Font("Dialog", Font.BOLD, 14));
 		
-		String[] sigmaOptions = {"1", "1.5", "2"};
+		String[] sigmaOptions = {"1", "2", "3"};
 		final JComboBox<String> sigmaList = new JComboBox<String>(sigmaOptions);
 		
 		sigmaList.addActionListener(new ActionListener() {

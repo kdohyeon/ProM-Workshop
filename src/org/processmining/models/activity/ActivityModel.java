@@ -34,33 +34,44 @@ public class ActivityModel {
 	}
 	
 	public void createActivityModel(XLog log) throws ParseException {
+
+		XESAttributeDefinition def = new XESAttributeDefinition();
+		
 		// for each case
 		for(int i = 0; i < log.size(); i++) {
-			// for each event
 			String caseID = log.get(i).getAttributes().get("concept:name").toString();
+			
+			// for each event
 			for(int j = 0; j < log.get(i).size(); j++) {
 				
 				// find the start and complete pair
-				XESAttributeDefinition def = new XESAttributeDefinition();
+				
 				XAttributeMap map = log.get(i).get(j).getAttributes();
 				
-				int currJ = j;
+				int currJ = 0;
 				
 				Activity act;
 				if(map.get(def.getEVENT_TYPE()).toString().equals(def.getEVENT_TYPE_START())) {
-					String activityID = map.get("concept:name").toString();
-					String start_timestamp = map.get("time:timestamp").toString();
-					String resource = map.get("org:resource").toString();
-					
 					String eventID = map.get(def.getEVENT_ID()).toString();
 					//String eventType_complete = def.getEVENT_TYPE_COMPLETE();
 					
 					boolean isFound = false;
 					while(!isFound) {
-						XAttributeMap iterMap = log.get(i).get(currJ++).getAttributes();
+						if(currJ == log.get(i).size()) {
+							System.out.println(eventID);
+							break;
+						}
 						
-						if(iterMap.get("EventID").toString().equals(eventID) && iterMap.get("EventType").toString().equals("complete")) {
+						XAttributeMap iterMap = log.get(i).get(currJ).getAttributes();
+						currJ++;
+						if(iterMap.get(def.getEVENT_ID()).toString().equals(eventID) 
+								&& iterMap.get(def.getEVENT_TYPE()).toString().equals(def.getEVENT_TYPE_COMPLETE())) {
+							
+							String activityID = map.get("concept:name").toString();
+							String start_timestamp = map.get("time:timestamp").toString();
+							String resource = map.get("org:resource").toString();
 							String complete_timestamp = iterMap.get(def.getTIMESTAMP()).toString();
+							
 							act = new Activity(
 									caseID, activityID, resource,
 									start_timestamp, complete_timestamp,
@@ -69,6 +80,8 @@ public class ActivityModel {
 
 							addActivity(act);
 							isFound = true;
+						}else {
+							
 						}
 					}
 				}				

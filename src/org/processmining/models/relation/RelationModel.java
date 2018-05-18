@@ -25,6 +25,25 @@ public class RelationModel {
 	private float minSupp;
 	private float minConf;
 	
+	/*
+	 * Constructor for creating relation model only for this caseID
+	 * */
+	public RelationModel(ActivityModel actModel, String caseID) {
+		relationArrayList = new ArrayList<Relation>();
+		relActivityMatrix = new RelationMatrix();
+		relResourceMatrix = new RelationMatrix();
+		
+		this.actModel = actModel;
+		
+		setMinSupp(0);
+		setMinConf(0);
+		
+		createRelationModelByCaseID(caseID);
+	}
+		
+	/*
+	 * Constructor for creating relation model
+	 * */
 	public RelationModel(ActivityModel actModel) {
 		relationArrayList = new ArrayList<Relation>();
 		relActivityMatrix = new RelationMatrix();
@@ -38,6 +57,35 @@ public class RelationModel {
 		createRelationModel();
 	}
 	
+	/*
+	 * Directly Follows
+	 * Need to be fixed
+	 * */
+	private void createRelationModel2() {
+		int actSize = actModel.getActivityCardinality();
+		
+		for(int i = 0; i < actSize; i++) {
+			if(i != actSize - 1) {
+				String currCase = actModel.getCase(i);
+				String nextCase = actModel.getCase(i+1);
+				
+				if(currCase.equals(nextCase)) {
+					try {
+						Relation rel = new Relation(actModel.getActivity(i), actModel.getActivity(i+1));
+						addRelation(rel);
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+	
+	
+	/*
+	 * Directly and Indirectly Follows
+	 * */
 	private void createRelationModel() {
 		int actSize = actModel.getActivityCardinality();
 		//System.out.println("Activity Cardinality: " + actSize);
@@ -84,6 +132,32 @@ public class RelationModel {
 		*/
 	}
 	
+	/*
+	 * Directly and Indirectly Follows
+	 * */
+	private void createRelationModelByCaseID(String caseID) {
+		int actSize = actModel.getActivityCardinality();
+		
+		for(int i = 0; i < actSize; i++) {
+			String currCase = actModel.getCase(i);
+			
+			if(currCase.equals(caseID)) {
+				for(int j = i+1; j < actSize; j++) {
+					String thisCase = actModel.getCase(j);
+					if(currCase.equals(thisCase)) {
+						try {
+							Relation rel = new Relation(actModel.getActivity(i), actModel.getActivity(j));
+							addRelation(rel);
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}	
+			}			
+		}
+	}
+	
 	public int getCaseSize(String caseID) {
 		int cnt = 0;
 		
@@ -94,6 +168,17 @@ public class RelationModel {
 		}
 		
 		return cnt;
+	}
+	
+	public ArrayList<String> getCaseIDList(){
+		ArrayList<String> result = new ArrayList<String>();
+		Set<String> temp = new HashSet<String>();
+		for(int i = 0; i < relationArrayList.size(); i++) {
+			temp.add(relationArrayList.get(i).getAntecedent().getCaseID());
+		}
+		result.addAll(temp);
+		
+		return result;
 	}
 	
 	public RelationMatrix calculateRelationResourceMatrix() {
