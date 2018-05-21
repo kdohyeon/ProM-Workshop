@@ -804,7 +804,6 @@ public class ControlFlowRuleMatchingModel extends AbstractRuleMatchingModel{
 					
 				}
 				
-				//if(!doesRuleExist) {
 				String temp = trainingAntecedentActivityID+"_"+trainingRelationType+"_"+trainingConsequentActivityID;
 				System.out.println("$$$ " + caseID + ": " + temp + " " + reason);
 				writer.append("$$$ " + caseID + ": " + temp + " " + reason + "\n");
@@ -818,29 +817,41 @@ public class ControlFlowRuleMatchingModel extends AbstractRuleMatchingModel{
 					tempArrayList.add(temp + " : " + reason);
 					reasonMap.put(caseID, tempArrayList);
 				}
-				
-				//}
 			}
 		}
 		
 		for(int k = 0; k < caseIDList.size(); k++) {
 			String key = caseIDList.get(k);
 			int denom, numer;
+			float ruleToLog;
 			
 			denom = cfRuleSize;
 			numer = normalSet.get(key).size();
 			
-			System.out.println("Rule-To-Log - Case ID: " + key + ": " + numer + " / " + denom + " = " + divide(numer, denom));
-			writer.append("Rule-To-Log - Case ID: " + key + ": " + numer + " / " + denom + " = " + divide(numer, denom) + "\n");
-			cfsm.addRuleToLogElem(key, divide(numer, denom));
+			if(denom != 0) {
+				ruleToLog = divide(numer, denom);
+			}else {
+				ruleToLog = 0;
+			}
+			
+			System.out.println("Rule-To-Log - Case ID: " + key + ": " + numer + " / " + denom + " = " + ruleToLog);
+			writer.append("Rule-To-Log - Case ID: " + key + ": " + numer + " / " + denom + " = " + ruleToLog + "\n");
+			cfsm.addRuleToLogElem(key, ruleToLog);
 			
 			int caseSize = testRelModel.getCaseSize(key);
 			denom = caseSize;
 			numer = normalArrayList.get(key).size();
+			float logToRule;
 
-			System.out.println("Log-To-Rule - Case ID: " + key + ": " + numer + " / " + denom + " = " + divide(numer, denom));
-			writer.append("Log-To-Rule - Case ID: " + key + ": " + numer + " / " + denom + " = " + divide(numer, denom) + "\n");
-			cfsm.addLogToRuleElem(key, divide(numer, denom));
+			if(denom != 0) {
+				logToRule = divide(numer, denom);
+			}else {
+				logToRule = 0;
+			}
+			
+			System.out.println("Log-To-Rule - Case ID: " + key + ": " + numer + " / " + denom + " = " + logToRule);
+			writer.append("Log-To-Rule - Case ID: " + key + ": " + numer + " / " + denom + " = " + logToRule + "\n");
+			cfsm.addLogToRuleElem(key, logToRule);
 			
 			System.out.println("");
 		}

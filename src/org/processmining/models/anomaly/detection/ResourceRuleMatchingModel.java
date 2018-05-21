@@ -1,5 +1,8 @@
 package org.processmining.models.anomaly.detection;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,11 +13,11 @@ import java.util.Set;
 import org.processmining.data.anomaly.ResourceScore;
 import org.processmining.data.overlap.Overlap;
 import org.processmining.data.processing.Processing;
-import org.processmining.data.relation.Relation;
 import org.processmining.data.relation.RelationMatrix;
 import org.processmining.data.transition.Transition;
 import org.processmining.data.trueX.TrueX;
 import org.processmining.data.trueY.TrueY;
+import org.processmining.data.xes.PathDefinition;
 import org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters;
 import org.processmining.mining.anomaly.score.ResourceScoreModel;
 import org.processmining.models.activity.ActivityModel;
@@ -34,7 +37,7 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 	
 	public ResourceRuleMatchingModel(ActivityModel trainingActModel, ActivityModel testActModel, 
 			RelationModel trainingRelModel, RelationModel testRelModel, 
-			AnomalyProfileModel profileModel, AnomalyDetectionMiningParameters parameters) {
+			AnomalyProfileModel profileModel, AnomalyDetectionMiningParameters parameters) throws IOException {
 		
 		/*
 		 * Parameters
@@ -45,6 +48,10 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 		this.setTestRelModel(testRelModel);
 		this.setProfileModel(profileModel);
 		this.setParameters(parameters);
+		
+		PathDefinition path = new PathDefinition();
+		File file = new File(path.getCurrPathResource());
+		FileWriter writer = new FileWriter(file);
 		
 		resourceScore = new HashMap<String, ResourceScore>(); // key: caseID, value: resource anomaly score
 		
@@ -59,9 +66,10 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 		/*
 		 * Rule to Log
 		 * */
-		Map<String, ArrayList<Relation>> normalInLog = new HashMap<String, ArrayList<Relation>>();
+		
 		Map<String, Set<String>> normalSet = new HashMap<String, Set<String>>();
 		Map<String, ArrayList<String>> normalArrayList = new HashMap<String, ArrayList<String>>();
+		Map<String, ArrayList<String>> reasonMap = new HashMap<String, ArrayList<String>>();
 		ArrayList<String> caseIDList = new ArrayList<String>();
 		caseIDList = testRelModel.getCaseIDList();
 		
@@ -125,8 +133,8 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 			
 			int ruleIdx = i+1;
 			
-			System.out.println(
-					"$$$$ Rule # " + ruleIdx + " (" + trainingAntecedentResourceID + " " + trainingRelationType + " " + trainingConsequentResourceID + ")");
+			System.out.println("$$$$ Rule # " + ruleIdx + " (" + trainingAntecedentResourceID + " " + trainingRelationType + " " + trainingConsequentResourceID + ")");
+			writer.append("$$$$ Rule # " + ruleIdx + " (" + trainingAntecedentResourceID + " " + trainingRelationType + " " + trainingConsequentResourceID + ")");
 			
 			float trainingAntecedentResourceProcessingTimeLowerBoundary = 0;
 			float trainingAntecedentResourceProcessingTimeUpperBoundary = 0;
@@ -228,6 +236,8 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 					float testTrueYTime = testRelModelByCase.getTrueYTime(j);
 					
 					boolean processing = false;
+					boolean processing_ante = false;
+					boolean processing_cons = false;
 					boolean transition = false;
 					boolean overlap = false;
 					boolean trueX = false;
@@ -244,11 +254,18 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 								if(trainingAntecedentResourceProcessingTimeLowerBoundary <= testAntecedentResourceProcessingTime && testAntecedentResourceProcessingTime <= trainingAntecedentResourceProcessingTimeUpperBoundary) {
 									if(trainingConsequentResourceProcessingTimeLowerBoundary <= testConsequentResourceProcessingTime && testConsequentResourceProcessingTime <= trainingConsequentResourceProcessingTimeUpperBoundary) {
 										processing = true;
-										
+										processing_ante = true;
+										processing_cons = true;
+									}else {
+										processing_cons = false;
 									}
+								}else {
+									processing_ante = false;
 								}
 							}else { // if not needed
 								processing = true;
+								processing_ante = true;
+								processing_cons = true;
 							}
 							
 							// if this needs to be compared
@@ -287,21 +304,22 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 								}
 							}
 							
-							if(!processing) {
+							if(!processing && !processing_ante) {
 								reason 
 								= reason + "processing time not matched. Ante: "
 								+ testAntecedentResourceProcessingTime
-								+ " -> [" 
-								+ trainingAntecedentResourceProcessingTimeLowerBoundary 
-								+ " ~ " 
-								+ trainingAntecedentResourceProcessingTimeUpperBoundary 
-								+ "], Conseq: "
+								+ " -> [" + trainingAntecedentResourceProcessingTimeLowerBoundary 
+								+ " ~ "  + trainingAntecedentResourceProcessingTimeUpperBoundary 
+								+ "], ";
+							}
+							
+							if(!processing && !processing_cons) {
+								reason 
+								= reason + "processing time not matched. Conseq: "
 								+ testConsequentResourceProcessingTime
-								+ " -> ["
-								+ trainingConsequentResourceProcessingTimeLowerBoundary
-								+ " ~ "
-								+ trainingConsequentResourceProcessingTimeUpperBoundary 
-								+ "] AND ";
+								+ " -> [" + trainingConsequentResourceProcessingTimeLowerBoundary
+								+ " ~ " + trainingConsequentResourceProcessingTimeUpperBoundary 
+								+ "], ";
 							}
 							
 							if(!transition) {
@@ -321,11 +339,19 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 							if(parameters.isProcessing()) {
 								if(trainingAntecedentResourceProcessingTimeLowerBoundary <= testAntecedentResourceProcessingTime && testAntecedentResourceProcessingTime <= trainingAntecedentResourceProcessingTimeUpperBoundary) {
 									if(trainingConsequentResourceProcessingTimeLowerBoundary <= testConsequentResourceProcessingTime && testConsequentResourceProcessingTime <= trainingConsequentResourceProcessingTimeUpperBoundary) {
-										processing = true;	
+										processing = true;
+										processing_ante = true;
+										processing_cons = true;
+									}else {
+										processing_cons = false;
 									}
+								}else {
+									processing_ante = false;
 								}
 							}else { // if not needed
 								processing = true;
+								processing_ante = true;
+								processing_cons = true;
 							}
 							
 							if(processing) {
@@ -354,21 +380,22 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 								}
 							}
 							
-							if(!processing) {
+							if(!processing && !processing_ante) {
 								reason 
 								= reason + "processing time not matched. Ante: "
 								+ testAntecedentResourceProcessingTime
-								+ " -> [" 
-								+ trainingAntecedentResourceProcessingTimeLowerBoundary 
-								+ " ~ " 
-								+ trainingAntecedentResourceProcessingTimeUpperBoundary 
-								+ "], Conseq: "
+								+ " -> [" + trainingAntecedentResourceProcessingTimeLowerBoundary 
+								+ " ~ "  + trainingAntecedentResourceProcessingTimeUpperBoundary 
+								+ "], ";
+							}
+							
+							if(!processing && !processing_cons) {
+								reason 
+								= reason + "processing time not matched. Conseq: "
 								+ testConsequentResourceProcessingTime
-								+ " -> ["
-								+ trainingConsequentResourceProcessingTimeLowerBoundary
-								+ " ~ "
-								+ trainingConsequentResourceProcessingTimeUpperBoundary 
-								+ "] AND ";
+								+ " -> [" + trainingConsequentResourceProcessingTimeLowerBoundary
+								+ " ~ " + trainingConsequentResourceProcessingTimeUpperBoundary 
+								+ "], ";
 							}
 							
 						}else if(trainingRelationType.equals("o")) {// rule 3
@@ -747,14 +774,19 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 					reason = "rule does not match";
 				}
 				
-				//if(!doesRuleExist) {
-				System.out.println(
-						"$$$ " + caseID + 
-						": " + trainingAntecedentResourceID + 
-						" " + trainingRelationType + 
-						" " + trainingConsequentResourceID + 
-						" " + reason);
-				//}
+				String temp = trainingAntecedentResourceID+"_"+trainingRelationType+"_"+trainingConsequentResourceID;
+				System.out.println("$$$ " + caseID + ": " + temp + " " + reason);
+				writer.append("$$$ " + caseID + ": " + temp + " " + reason + "\n");
+				
+				if(reasonMap.containsKey(caseID)) {
+					ArrayList<String> tempArrayList = reasonMap.get(caseID);
+					tempArrayList.add(temp + " : " + reason);
+					reasonMap.put(caseID, tempArrayList);
+				}else {
+					ArrayList<String> tempArrayList = new ArrayList<String>();
+					tempArrayList.add(temp + " : " + reason);
+					reasonMap.put(caseID, tempArrayList);
+				}
 			}
 		}
 		
@@ -771,11 +803,8 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 				ruleToLog = 0;
 			}
 			
-			System.out.println(
-					"Rule-To-Log - Case ID: " + key + 
-					": " + numer + " / " + denom + 
-					" = " + ruleToLog);
-			
+			System.out.println("Rule-To-Log - Case ID: " + key + ": " + numer + " / " + denom + " = " + ruleToLog);
+			writer.append("Rule-To-Log - Case ID: " + key + ": " + numer + " / " + denom + " = " + ruleToLog + "\n");
 			rsm.addRuleToLogElem(key, ruleToLog);
 			
 			int caseSize = testRelModel.getCaseSize(key);
@@ -788,11 +817,9 @@ public class ResourceRuleMatchingModel extends AbstractRuleMatchingModel{
 			}else {
 				logToRule = 0;
 			}
-			System.out.println(
-					"Log-To-Rule - Case ID: " + key + 
-					": " + numer + " / " + denom + 
-					" = " + logToRule);
 			
+			System.out.println("Log-To-Rule - Case ID: " + key + ": " + numer + " / " + denom + " = " + logToRule);
+			writer.append("Log-To-Rule - Case ID: " + key + ": " + numer + " / " + denom + " = " + logToRule + "\n");
 			rsm.addLogToRuleElem(key, logToRule);
 			
 			System.out.println("");

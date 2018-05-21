@@ -65,6 +65,7 @@ public class ProcessingProfileModel {
 	}
 	
 	private void getProcessingProfileModel_Act() {
+		System.out.println("### GET PROCESSING PROFILE MODEL ACTIVITY ONLY");
 		int size = actModel.getActivityCardinality();
 		
 		ArrayList<String> activityList = new ArrayList<String>();
@@ -92,6 +93,8 @@ public class ProcessingProfileModel {
 				p.calculateStdev();
 				
 				processingList_Act.add(p);
+				
+				System.out.println(activityID + ": " + p.getAvg() + " +/- " + p.getStdev());
 			}
 		}
 	}

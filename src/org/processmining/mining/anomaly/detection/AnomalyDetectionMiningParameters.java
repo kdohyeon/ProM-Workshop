@@ -28,7 +28,7 @@ public class AnomalyDetectionMiningParameters {
 		logRuleRatio = (float) 0.5;
 		
 		alpha = (float) 0.5;
-		beta = (float) (1.0 - beta);
+		beta = (float) (1.0 - alpha);
 		
 	}
 

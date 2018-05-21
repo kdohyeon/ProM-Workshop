@@ -96,6 +96,8 @@ public class AnomalyDetectionMiningPlugin {
 			AnomalyProfileModel profileModel,
 			AnomalyDetectionMiningParameters parameters) throws ParseException, IOException {
 		
+		
+		
 		/*
 		 * Inform the progress bar when we're done.
 		 */
