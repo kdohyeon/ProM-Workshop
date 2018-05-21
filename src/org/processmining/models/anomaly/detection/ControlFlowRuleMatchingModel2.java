@@ -7,9 +7,9 @@ import org.processmining.data.processing.Processing;
 import org.processmining.data.transition.Transition;
 import org.processmining.data.trueX.TrueX;
 import org.processmining.data.trueY.TrueY;
-import org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;
 import org.processmining.models.relation.RelationModel;
+import org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParameters;
 
 public class ControlFlowRuleMatchingModel2 {
 	

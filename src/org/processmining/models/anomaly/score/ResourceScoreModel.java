@@ -1,11 +1,11 @@
-package org.processmining.mining.anomaly.score;
+package org.processmining.models.anomaly.score;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.processmining.data.anomaly.ResourceScore;
-import org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters;
+import org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParameters;
 
 public class ResourceScoreModel extends AbstractRuleLogScoreModel{
 	private Map<String, Float> ruleToLogMap;

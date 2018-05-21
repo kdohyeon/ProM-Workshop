@@ -1,4 +1,4 @@
-package org.processmining.mining.anomaly.profile;
+package org.processmining.plugins.anomaly.profile;
 
 import java.text.ParseException;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package org.processmining.mining.anomaly.detection;
+package org.processmining.plugins.anomaly.detection;
 
 import java.io.IOException;
 import java.text.ParseException;

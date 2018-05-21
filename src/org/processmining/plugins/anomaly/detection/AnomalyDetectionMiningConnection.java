@@ -1,4 +1,4 @@
-package org.processmining.mining.anomaly.detection;
+package org.processmining.plugins.anomaly.detection;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.models.anomaly.detection.AnomalyDetectionModel;

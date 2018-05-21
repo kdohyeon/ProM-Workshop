@@ -1,4 +1,4 @@
-package org.processmining.mining.anomaly.score;
+package org.processmining.models.anomaly.score;
 
 public class AbstractRuleLogScoreModel {
 	

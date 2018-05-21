@@ -1,4 +1,4 @@
-package org.processmining.mining.anomaly.detection;
+package org.processmining.plugins.anomaly.detection;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -39,7 +39,7 @@ public class AnomalyDetectionMiningDialog extends JPanel {
 	public AnomalyDetectionMiningDialog(
 			XLog log,
 			AnomalyProfileModel profileModel,
-			final org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters parameters) {
+			final org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParameters parameters) {
 
 		/*
 		 * Parameter

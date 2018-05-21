@@ -1,4 +1,4 @@
-package org.processmining.mining.anomaly.profile;
+package org.processmining.plugins.anomaly.profile;
 
 public class AnomalyProfileMiningParameters {
 	private float minSupport;

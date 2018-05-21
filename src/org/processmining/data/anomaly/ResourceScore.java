@@ -1,6 +1,6 @@
 package org.processmining.data.anomaly;
 
-import org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters;
+import org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParameters;
 
 public class ResourceScore {
 	private String caseID;

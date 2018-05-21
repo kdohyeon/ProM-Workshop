@@ -20,10 +20,10 @@ import org.processmining.data.anomaly.ControlFlowScore;
 import org.processmining.data.anomaly.ResourceScore;
 import org.processmining.data.xes.PathDefinition;
 import org.processmining.framework.util.HTMLToString;
-import org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters;
 import org.processmining.models.activity.ActivityModel;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;
 import org.processmining.models.relation.RelationModel;
+import org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParameters;
 
 public class AnomalyDetectionModel implements HTMLToString{
 	

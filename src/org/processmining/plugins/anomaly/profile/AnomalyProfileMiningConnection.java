@@ -1,4 +1,4 @@
-package org.processmining.mining.anomaly.profile;
+package org.processmining.plugins.anomaly.profile;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;

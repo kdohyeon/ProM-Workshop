@@ -18,11 +18,11 @@ import org.processmining.data.transition.Transition;
 import org.processmining.data.trueX.TrueX;
 import org.processmining.data.trueY.TrueY;
 import org.processmining.data.xes.PathDefinition;
-import org.processmining.mining.anomaly.detection.AnomalyDetectionMiningParameters;
-import org.processmining.mining.anomaly.score.ControlFlowScoreModel;
 import org.processmining.models.activity.ActivityModel;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;
+import org.processmining.models.anomaly.score.ControlFlowScoreModel;
 import org.processmining.models.relation.RelationModel;
+import org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParameters;
 
 public class ControlFlowRuleMatchingModel extends AbstractRuleMatchingModel{
 	

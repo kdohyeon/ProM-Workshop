@@ -1,4 +1,4 @@
-package org.processmining.mining.anomaly.profile;
+package org.processmining.plugins.anomaly.profile;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -31,7 +31,7 @@ public class AnomalyProfileMiningDialog extends JPanel {
 	 * @param parameters
 	 *            The parameters which will be used for the mining.
 	 */
-	public AnomalyProfileMiningDialog(XLog log, final org.processmining.mining.anomaly.profile.AnomalyProfileMiningParameters parameters) {
+	public AnomalyProfileMiningDialog(XLog log, final org.processmining.plugins.anomaly.profile.AnomalyProfileMiningParameters parameters) {
 
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
