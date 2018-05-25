@@ -33,5 +33,8 @@
 	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/weka.jar"/>
 	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/xstream-1.4.10.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Programming_Problems"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/MXMLib.jar"/>
+	<classpathentry kind="lib" path="D:/eclipse-workspace/prom/lib/PLGLib.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
