@@ -11,6 +11,7 @@ public class AnomalyProfileModel implements HTMLToString{
 	private RelationModel relModel = null;
 	
 	ProcessingProfileModel processingModel;
+	RelationProfileModel performanceModel;
 	TransitionProfileModel transitionModel;
 	OverlapProfileModel overlapModel;
 	TrueXProfileModel trueXModel;
@@ -23,6 +24,9 @@ public class AnomalyProfileModel implements HTMLToString{
 		ProcessingProfileModel processingModel = new ProcessingProfileModel(actModel);
 		//processingModel.printProcessingProfile();
 		setProcessingModel(processingModel);
+		
+		RelationProfileModel performnaceModel = new RelationProfileModel(relModel);
+		setPerformanceModel(performnaceModel);
 		
 		TransitionProfileModel transitionModel = new TransitionProfileModel(relModel);
 		//transitionModel.printTransitionProfile();
@@ -306,5 +310,15 @@ public class AnomalyProfileModel implements HTMLToString{
 
 	public void setRelModel(RelationModel relModel) {
 		this.relModel = relModel;
+	}
+
+
+	public RelationProfileModel getPerformanceModel() {
+		return performanceModel;
+	}
+
+
+	public void setPerformanceModel(RelationProfileModel performanceModel) {
+		this.performanceModel = performanceModel;
 	}
 }

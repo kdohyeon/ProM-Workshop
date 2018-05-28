@@ -1,10 +1,10 @@
-package org.processmining.data.transition;
+package org.processmining.data.performance;
 
 import java.util.ArrayList;
 
 import org.processmining.data.relation.Relation;
 
-public class Transition{
+public class RelationPerformance{
 	private String fromActivityID;
 	private String toActivityID;
 	private String fromResourceID;
@@ -20,7 +20,7 @@ public class Transition{
 	private float median;
 	private int freq;
 	
-	public Transition(String fromActivityID, String toActivityID, String fromResourceID, String toResourceID, String relation) {
+	public RelationPerformance(String fromActivityID, String toActivityID, String fromResourceID, String toResourceID, String relation) {
 		this.fromActivityID = fromActivityID;
 		this.toActivityID = toActivityID;
 		this.fromResourceID = fromResourceID;

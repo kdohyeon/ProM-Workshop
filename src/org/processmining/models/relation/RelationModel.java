@@ -293,9 +293,19 @@ public class RelationModel {
 			}
 		}
 		
-		System.out.println("CF Rule: " + relActivityMatrix.getRelationMatrixListSize());
+		//System.out.println("CF Rule: " + relActivityMatrix.getRelationMatrixListSize());
 		
 		return relActivityMatrix;
+	}
+	
+	public ArrayList<String> getUniqueRelation(){
+		ArrayList<String> result = new ArrayList<String>();
+		Set<String> relationSet = new HashSet<String>();
+		for(int i = 0; i < relationArrayList.size(); i++) {
+			relationSet.add(relationArrayList.get(i).getRelation());
+		}
+		result.addAll(relationSet);
+		return result;
 	}
 	
 	public RelationMatrix getRelationActivityMatrix() {
@@ -370,16 +380,56 @@ public class RelationModel {
 		return relationArrayList.get(i).getTransitionTime();
 	}
 	
+	public float getTransitionTime(String caseID, String relation) {
+		float result = 0;
+		for(int i = 0; i < relationArrayList.size(); i++) {
+			if(relationArrayList.get(i).getRelation().equals(relation) && relationArrayList.get(i).getAntecedent().getCaseID().equals(caseID)) {
+				result = relationArrayList.get(i).getTransitionTime(); 
+			}
+		}
+		return result;
+	}
+	
 	public float getOverlapTime(int i) {
 		return relationArrayList.get(i).getOverlapTime();
+	}
+	
+	public float getOverlapTime(String caseID, String relation) {
+		float result = 0;
+		for(int i = 0; i < relationArrayList.size(); i++) {
+			if(relationArrayList.get(i).getRelation().equals(relation) && relationArrayList.get(i).getAntecedent().getCaseID().equals(caseID)) {
+				result = relationArrayList.get(i).getOverlapTime(); 
+			}
+		}
+		return result;
 	}
 	
 	public float getTrueXTime(int i) {
 		return relationArrayList.get(i).getTrueXTime();
 	}
 	
+	public float getTrueXTime(String caseID, String relation) {
+		float result = 0;
+		for(int i = 0; i < relationArrayList.size(); i++) {
+			if(relationArrayList.get(i).getRelation().equals(relation) && relationArrayList.get(i).getAntecedent().getCaseID().equals(caseID)) {
+				result = relationArrayList.get(i).getTrueXTime(); 
+			}
+		}
+		return result;
+	}
+	
 	public float getTrueYTime(int i) {
 		return relationArrayList.get(i).getTrueYTime();
+	}
+	
+	public float getTrueYTime(String caseID, String relation) {
+		float result = 0;
+		for(int i = 0; i < relationArrayList.size(); i++) {
+			if(relationArrayList.get(i).getRelation().equals(relation) && relationArrayList.get(i).getAntecedent().getCaseID().equals(caseID)) {
+				result = relationArrayList.get(i).getTrueYTime(); 
+			}
+		}
+		return result;
 	}
 
 	public float getMinSupp() {

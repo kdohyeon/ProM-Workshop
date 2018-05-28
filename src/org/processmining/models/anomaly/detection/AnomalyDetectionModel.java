@@ -15,9 +15,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.deckfour.xes.model.XLog;
-import org.processmining.data.anomaly.AnomalyScore;
-import org.processmining.data.anomaly.ControlFlowScore;
-import org.processmining.data.anomaly.ResourceScore;
 import org.processmining.data.xes.PathDefinition;
 import org.processmining.framework.util.HTMLToString;
 import org.processmining.models.activity.ActivityModel;
@@ -27,46 +24,175 @@ import org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParamet
 
 public class AnomalyDetectionModel implements HTMLToString{
 	
-	private XLog log;
-	private AnomalyProfileModel profileModel;
+	//private XLog log;
+	//private AnomalyProfileModel profileModel;
 	
-	private ActivityModel testActModel;
+	//private ActivityModel testActModel;
 	private RelationModel testRelModel;
 	
-	private Map<String, AnomalyScore> anomalyScoreMap;
-	private Map<String, AnomalyScore> sortedAnomalyScoreMap;
+	Map<String, Float> cfMap = new HashMap<String, Float>();
+	Map<String, Float> tMap = new HashMap<String, Float>();
+	Map<String, Float> rActResMap = new HashMap<String, Float>();
+	
+	//private Map<String, AnomalyScore> anomalyScoreMap;
+	//private Map<String, AnomalyScore> sortedAnomalyScoreMap;
+	private Map<String, Float> sortedAnomalyScoreMap;
 	
 	PathDefinition path = new PathDefinition();
 	File file = new File(path.getCurrPathTestRelation());
 	FileWriter writer = new FileWriter(file);
 	
 	public AnomalyDetectionModel(XLog log, AnomalyProfileModel profileModel, AnomalyDetectionMiningParameters parameters) throws ParseException, IOException {
-		this.log = log;
-		this.profileModel = profileModel;
-		anomalyScoreMap = new HashMap<String, AnomalyScore>();
-		sortedAnomalyScoreMap = new LinkedHashMap<String, AnomalyScore>();
-		
-		
+		//this.log = log;
+		//this.profileModel = profileModel;
+		//anomalyScoreMap = new HashMap<String, AnomalyScore>();
+		//sortedAnomalyScoreMap = new LinkedHashMap<String, AnomalyScore>();
+		sortedAnomalyScoreMap = new LinkedHashMap<String, Float>();
 		
 		/*
-		 * Test data
+		 * Parameters
 		 * */
+		// Test data
 		ActivityModel testActModel = new ActivityModel(log);
-		this.testActModel = testActModel;
+		//this.testActModel = testActModel;
 		RelationModel testRelModel = new RelationModel(testActModel);
 		this.testRelModel = testRelModel;
 		
+		// Case id list
 		ArrayList<String> caseIDList = new ArrayList<String>();
 		caseIDList = testRelModel.getCaseIDList();
-		/*
-		 * Training data - profile model
-		 * */
+
+		// Training data
 		ActivityModel trainingActModel = profileModel.getActModel();
 		RelationModel trainingRelModel = profileModel.getRelModel();
 		
 		/*
+		 * Control-Flow, Activity
+		 * */
+		System.out.println(" ### Anomaly Score : Control-Flow, Activity ### ");
+		ControlFlowActivityRuleMatchingModel cfActRuleMatching = new ControlFlowActivityRuleMatchingModel(trainingActModel, testActModel, parameters);
+		Map<String, Float> cfActMap = new HashMap<String, Float>();
+		cfActMap = cfActRuleMatching.getResultMap();
+		
+		/*
+		 * Control-Flow, Relation
+		 * */
+		System.out.println(" ### Anomaly Score : Control-Flow, Relation ### ");
+		ControlFlowRelationRuleMatchingModel cfRelRuleMatching = new ControlFlowRelationRuleMatchingModel(trainingRelModel, testRelModel, parameters);
+		Map<String, Float> cfRelMap = new HashMap<String, Float>();
+		cfRelMap = cfRelRuleMatching.getResultMap();
+		
+		/*
+		 * Control-Flow, Overall
+		 * */
+		
+		float weight1, weight2;
+		weight1 = (float) 0.5; // equal weight
+		weight2 = (float) 0.5; // equal weight
+		for(int i = 0; i < caseIDList.size(); i++) {
+			String thisCase = caseIDList.get(i);
+			float act = cfActMap.get(thisCase);
+			float rel = cfRelMap.get(thisCase);
+			float result = act*weight1 + rel*weight2;
+			cfMap.put(thisCase, result);
+		}
+		
+		/*
+		 * Time, Activity
+		 * */
+		System.out.println(" ### Anomaly Score : Time, Activity ### ");
+		TimeActivityRuleMatchingModel timeActRuleMatching = new TimeActivityRuleMatchingModel(profileModel, testActModel, parameters);
+		Map<String, Float> tActMap = new HashMap<String, Float>();
+		tActMap = timeActRuleMatching.getResultMap();
+		
+		/*
+		 * Time, Relation
+		 * */
+		System.out.println(" ### Anomaly Score : Time, Relation ### ");
+		TimeRelationRuleMatchingModel timeRelRuleMatching = new TimeRelationRuleMatchingModel(profileModel, testRelModel, parameters);
+		Map<String, Float> tRelMap = new HashMap<String, Float>();
+		tRelMap = timeRelRuleMatching.getResultMap();
+		
+		/*
+		 * Time, Overall
+		 * */
+		
+		float weight3, weight4;
+		weight3 = (float) 0.5; // equal weight
+		weight4 = (float) 0.5; // equal weight
+		for(int i = 0; i < caseIDList.size(); i++) {
+			String thisCase = caseIDList.get(i);
+			float act = tActMap.get(thisCase);
+			float rel = tRelMap.get(thisCase);
+			float result = act*weight3 + rel*weight4;
+			tMap.put(thisCase, result);
+		}
+		
+		/*
+		 * Resource, Activity-Resource
+		 * */
+		System.out.println(" ### Anomaly Score : Resource, Activity-Resource ### ");
+		ResourceActivityRuleMatchingModel rActResRuleMatching = new ResourceActivityRuleMatchingModel(trainingActModel, testActModel, parameters);
+		
+		rActResMap = rActResRuleMatching.getResultMap();
+		
+		/*
+		 * Overall Anomaly Score
+		 * */
+		Map<String, Float> anomalyScoreMap = new HashMap<String, Float>();
+		float weight5, weight6, weight7;
+		weight5 = (float)(1*1.0/3);
+		weight6 = (float)(1*1.0/3);
+		weight7 = (float)(1*1.0/3);
+		
+		for(int i = 0; i < caseIDList.size(); i++) {
+			String thisCase = caseIDList.get(i);
+			float cf = cfMap.get(thisCase);
+			float t = tMap.get(thisCase);
+			float r = rActResMap.get(thisCase);
+			float result = cf*weight5 + t*weight6 + r*weight7;
+			anomalyScoreMap.put(thisCase, result);
+		}
+		
+		/*
+		 * Normalize
+		 * */
+		Map<String, Float> normalizedMap = new HashMap<String, Float>();
+		Iterator<String> iter = anomalyScoreMap.keySet().iterator();
+		float min = 1;
+		float max = 0;
+		while(iter.hasNext()) {
+			String key = iter.next();
+			float value = anomalyScoreMap.get(key);
+			
+			if(value < min) {
+				min = value;
+			}
+			
+			if(value > max) {
+				max = value;
+			}
+		}
+		
+		iter = anomalyScoreMap.keySet().iterator();
+		while(iter.hasNext()) {
+			String key = iter.next();
+			float value = anomalyScoreMap.get(key);
+			float noramlized = (value - min)/(max - min);
+			normalizedMap.put(key, noramlized);
+		}
+		
+		sortedAnomalyScoreMap = sortByValue(normalizedMap);
+		Iterator<String> anomalyIter = sortedAnomalyScoreMap.keySet().iterator();
+		while(anomalyIter.hasNext()) {
+			String key = anomalyIter.next();
+			System.out.println("key, value: " + key + ", " + sortedAnomalyScoreMap.get(key));
+		}
+		
+		/*
 		 * Control-flow Perspective Rule Matching
 		 * */
+		/*
 		ControlFlowRuleMatchingModel cfRuleMatching = new ControlFlowRuleMatchingModel(
 				trainingActModel, testActModel, trainingRelModel, testRelModel, profileModel, parameters);
 		
@@ -78,11 +204,11 @@ public class AnomalyDetectionModel implements HTMLToString{
 			String key = cfIter.next();
 			System.out.println("key, value: " + key + ", " + controlFlowScoreMap.get(key).getControlFlowScore());
 		}
-		
+		*/
 		/*
 		 * Resource Perspective Rule Matching
 		 * */
-		
+		/*
 		ResourceRuleMatchingModel rRuleMatching = new ResourceRuleMatchingModel(
 				trainingActModel, testActModel, trainingRelModel, testRelModel, profileModel, parameters);
 		
@@ -94,13 +220,15 @@ public class AnomalyDetectionModel implements HTMLToString{
 			String key = rIter.next();
 			System.out.println("key, value: " + key + ", " + resourceScoreMap.get(key).getResourceScore());
 		}
+		*/
 		
 		/*
 		 * Anomaly Score
 		 * */
-		System.out.println(" ### Overall Anomaly Score ###");
+		//System.out.println(" ### Overall Anomaly Score ###");
 		
 		// Change the parameter (ratio of Log-To-Rule and Rule-To-Log by the frequency of each perspective's rules
+		/*
 		int a = 0;
 		int b = 0;
 		
@@ -111,7 +239,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 		if(trainingRelModel.getRelationResourceMatrix().getRelationMatrixListSize() > 0) {
 			b = trainingRelModel.getRelationResourceMatrix().getRelationMatrixListSize();
 		}
-		
+		*/
 		/*
 		int sum = a + b;
 		float alpha = (float) ((a * 1.0) / (sum));
@@ -121,6 +249,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 		
 		System.out.println("a: " + a + ", b: " + b + ", alpha: " + alpha + ", beta: " + beta);
 		*/
+		/*
 		this.calculateAnomalyScore(caseIDList, controlFlowScoreMap, resourceScoreMap, parameters);
 		
 		sortedAnomalyScoreMap = sortByValue(anomalyScoreMap);
@@ -129,8 +258,29 @@ public class AnomalyDetectionModel implements HTMLToString{
 			String key = anomalyIter.next();
 			//System.out.println("key, value: " + key + ", " + anomalyScoreMap.get(key).getOverallScore());
 		}
+		*/
 	}
-	
+	public Map<String, Float> sortByValue(Map<String, Float> unsortMap){
+		// 1. Convert Map to List of Map
+		List<Map.Entry<String, Float>> list = new LinkedList<Map.Entry<String, Float>>(unsortMap.entrySet());
+		
+		// 2. Sort list with Collections.sort(), provide a custom Comparator
+		// Try to switch the o1, o2 position for a different order
+		Collections.sort(list, new Comparator<Map.Entry<String, Float>>(){
+			public int compare(Map.Entry<String, Float> o1, Map.Entry<String, Float> o2) {
+				return (o2.getValue()).compareTo(o1.getValue());
+			}
+		});
+		
+		// 3. Loop the unsorted list and put it into a new insertion order Map LinkedHashMap
+		Map<String, Float> sortedMap = new LinkedHashMap<String, Float>();
+		for(Map.Entry<String, Float> entry : list) {
+			sortedMap.put(entry.getKey(), entry.getValue());
+		}
+		
+		return sortedMap;
+	}
+	/*
 	public Map<String, AnomalyScore> sortByValue(Map<String, AnomalyScore> unsortMap){
 		// 1. Convert Map to List of Map
 		List<Map.Entry<String, AnomalyScore>> list = new LinkedList<Map.Entry<String, AnomalyScore>>(unsortMap.entrySet());
@@ -150,8 +300,9 @@ public class AnomalyDetectionModel implements HTMLToString{
 		}
 		
 		return sortedMap;
-	}
+	}*/
 	
+	/*
 	public void calculateAnomalyScore(
 			ArrayList<String> caseIDList, 
 			Map<String, ControlFlowScore> controlFlow, 
@@ -183,10 +334,17 @@ public class AnomalyDetectionModel implements HTMLToString{
 			anomalyScoreMap.put(currCaseID, aScore);
 		}		
 	}
+	*/
 	
+	public Map<String, Float> getAnomalyScore() {
+		return sortedAnomalyScoreMap;
+	}
+	
+	/*
 	public Map<String, AnomalyScore> getAnomalyScore() {
 		return anomalyScoreMap;
 	}
+	*/
 	
 	public String toHTMLString(boolean includeHTMLTags) {
 		StringBuffer buffer = new StringBuffer();
@@ -279,6 +437,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 		buffer.append("<th> Case ID </th>");
 		buffer.append("<th> Anomaly Score </th>");
 		buffer.append("<th> Control-Flow Score </th>");
+		buffer.append("<th> Time Score </th>");
 		buffer.append("<th> Resource Score </th>");
 		buffer.append("</tr>");
 		
@@ -297,9 +456,14 @@ public class AnomalyDetectionModel implements HTMLToString{
 			
 			buffer.append("<td>" + cnt + "</td>");
 			buffer.append("<td>" + key + "</td>");
-			buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getOverallScore() + "</td>");
-			buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getCfScore().getControlFlowScore() + "</td>");
-			buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getrScore().getResourceScore() + "</td>");			
+			
+			buffer.append("<td>" + sortedAnomalyScoreMap.get(key) + "</td>");
+			buffer.append("<td>" + cfMap.get(key) + "</td>");
+			buffer.append("<td>" + tMap.get(key) + "</td>");
+			buffer.append("<td>" + rActResMap.get(key) + "</td>");
+			//buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getOverallScore() + "</td>");
+			//buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getCfScore().getControlFlowScore() + "</td>");
+			//buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getrScore().getResourceScore() + "</td>");			
 			
 			buffer.append("</tr>");
 		}		

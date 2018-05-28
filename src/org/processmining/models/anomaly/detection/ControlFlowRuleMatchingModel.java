@@ -50,7 +50,6 @@ public class ControlFlowRuleMatchingModel extends AbstractRuleMatchingModel{
 		this.setProfileModel(profileModel);
 		this.setParameters(parameters);
 		
-		
 		PathDefinition path = new PathDefinition();
 		File file = new File(path.getCurrPathControlFlow());
 		FileWriter writer = new FileWriter(file);

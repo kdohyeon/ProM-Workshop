@@ -12,6 +12,7 @@ public class Relation {
 	private Activity antecedent;
 	private Activity consequent;
 	private String relationType;
+	private String relation;
 	
 	private float transitionTime;
 	private float overlapTime;
@@ -28,6 +29,8 @@ public class Relation {
 		trueYTime = 0;
 		
 		relationType = identifyRelationType();
+		
+		relation = antecedent.getActivityID() + "_" + relationType + "_" + consequent.getActivityID();
 	}
 	
 	
@@ -195,5 +198,15 @@ public class Relation {
 	
 	public String getResource() {
 		return antecedent.getResourceID() + "_" + relationType + "_" + consequent.getResourceID();
+	}
+
+
+	public String getRelation() {
+		return relation;
+	}
+
+
+	public void setRelation(String relation) {
+		this.relation = relation;
 	}
 }
