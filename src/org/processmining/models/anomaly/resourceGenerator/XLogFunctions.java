@@ -88,6 +88,13 @@ public class XLogFunctions {
 		} catch (Exception ex) {
 		}
 	}
+	public static void setData(XTrace trace, String datatype) {
+		try {
+			trace.getAttributes().put("Data", new XAttributeLiteralImpl("Data", datatype));
+		}catch(Exception ex) {
+			
+		}
+	}
 	public static String getID(XTrace trace) {
 		try {
 			return XConceptExtension.instance().extractName(trace); 
@@ -162,6 +169,14 @@ public class XLogFunctions {
 		try {
 			event.getAttributes().put("org:resource",new XAttributeLiteralImpl("org:resource", resource)); 
 		} catch (Exception ex) {
+		}
+		
+	}
+	public static void setEventID(XEvent event, String eventID) {
+		try {
+			event.getAttributes().put("EventID", new XAttributeLiteralImpl("EventID", eventID));
+		}catch(Exception ex) {
+			
 		}
 	}
 	

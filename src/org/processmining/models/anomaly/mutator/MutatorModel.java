@@ -60,7 +60,6 @@ public class MutatorModel {
 		System.out.println("Type: " + type);
 		int caseSize = log.size();
 		
-		
 		outputPath = outputPath + type + "_" + dp + "_" + log.getAttributes().get("concept:name") + ".csv";
 		File file = new File(outputPath);
 		FileWriter writer = new FileWriter(file);
