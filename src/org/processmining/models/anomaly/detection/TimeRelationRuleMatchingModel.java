@@ -61,7 +61,9 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 		trueY = trueYModel.getTrueYList_Act();
 		
 		for(int i = 0; i < caseIDList.size(); i++) {
+			
 			String thisCase = caseIDList.get(i);
+			//System.out.println("Case ID: " + thisCase);
 			
 			ArrayList<String> temp = new ArrayList<String>();
 			for(int j = 0; j < testRelModel.getRelationCardinality(); j++) {
@@ -78,9 +80,13 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 				//String cons = parseLine[2];
 				String relType = parseLine[1];
 				
+				//System.out.println(thisRelation + ", " + relType);
+				
 				if(relType.equals("<")) { // type 1
 					for(int k = 0; k < transition.size(); k++) {
-						if(transition.get(k).getRelation().equals(thisRelation)) {
+						//System.out.println(transition.get(k).getActivityPair());
+						
+						if(transition.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = transition.get(k).getAvg();
 							float std = transition.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -103,7 +109,7 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 					boolean isTrueY = false;
 					
 					for(int k = 0; k < overlap.size(); k++) {
-						if(overlap.get(k).getRelation().equals(thisRelation)) {
+						if(overlap.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = overlap.get(k).getAvg();
 							float std = overlap.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -119,7 +125,7 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 					}
 					
 					for(int k = 0; k < trueX.size(); k++) {
-						if(trueX.get(k).getRelation().equals(thisRelation)) {
+						if(trueX.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = trueX.get(k).getAvg();
 							float std = trueX.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -135,7 +141,7 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 					}
 					
 					for(int k = 0; k < trueY.size(); k++) {
-						if(trueY.get(k).getRelation().equals(thisRelation)) {
+						if(trueY.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = trueY.get(k).getAvg();
 							float std = trueY.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -160,7 +166,7 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 					boolean isTrueY = false;
 					
 					for(int k = 0; k < overlap.size(); k++) {
-						if(overlap.get(k).getRelation().equals(thisRelation)) {
+						if(overlap.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = overlap.get(k).getAvg();
 							float std = overlap.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -176,7 +182,7 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 					}
 					
 					for(int k = 0; k < trueY.size(); k++) {
-						if(trueY.get(k).getRelation().equals(thisRelation)) {
+						if(trueY.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = trueY.get(k).getAvg();
 							float std = trueY.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -200,7 +206,7 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 					boolean isTrueX = false;
 					
 					for(int k = 0; k < overlap.size(); k++) {
-						if(overlap.get(k).getRelation().equals(thisRelation)) {
+						if(overlap.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = overlap.get(k).getAvg();
 							float std = overlap.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -216,7 +222,7 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 					}
 					
 					for(int k = 0; k < trueX.size(); k++) {
-						if(trueX.get(k).getRelation().equals(thisRelation)) {
+						if(trueX.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = trueX.get(k).getAvg();
 							float std = trueX.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -238,7 +244,7 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 					boolean isOverlap = false;
 					
 					for(int k = 0; k < overlap.size(); k++) {
-						if(overlap.get(k).getRelation().equals(thisRelation)) {
+						if(overlap.get(k).getActivityPair().equals(thisRelation)) {
 							float avg = overlap.get(k).getAvg();
 							float std = overlap.get(k).getStdev();
 							float lowerBound = avg - 3*std;
@@ -261,13 +267,14 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 				
 			}
 			
-			System.out.println("Time Activity");
-			float unmatched = testRelSet.size() - cnt;
-			float timeActivity = (float)( (unmatched * 1.0) / testRelSet.size());
-			System.out.println(timeActivity);
+			//System.out.println("Time Relation - " + thisCase);
+			float unmatched = temp.size() - cnt;
+			float timeActivity = (float)( (unmatched * 1.0) / temp.size());
+			//System.out.println(timeActivity);
 			
 			// calculate
 			resultMap.put(thisCase, timeActivity);
+			
 		}
 	}
 

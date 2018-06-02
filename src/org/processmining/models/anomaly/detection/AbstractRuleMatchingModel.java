@@ -17,6 +17,10 @@ public class AbstractRuleMatchingModel {
 	
 	public float computeRuleToLog(ArrayList<String> rules, ArrayList<String> log) {
 		//System.out.println(" ### Rule to Log ### ");
+		
+		//System.out.println("Rule Size: " + rules.size());
+		//System.out.println("Log Size: " + log.size());
+		
 		float result = 0;
 		int cnt = 0;
 		
@@ -32,7 +36,11 @@ public class AbstractRuleMatchingModel {
 		int unmatched = rules.size() - cnt;
 		//System.out.println("Matched: " + cnt + ", Unmatched: " + unmatched + ", Out of: " + rules.size());
 		
-		result = (float) (unmatched * 1.0 / rules.size());
+		if(rules.size() == 0) {
+			result = 0;
+		}else {
+			result = (float) (unmatched * 1.0 / rules.size());	
+		}
 		
 		return result;
 	}

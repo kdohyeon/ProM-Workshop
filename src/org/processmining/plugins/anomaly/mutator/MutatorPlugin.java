@@ -1,5 +1,6 @@
-package org.processmining.plugins.anomaly.randomGenerator;
+package org.processmining.plugins.anomaly.mutator;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Collection;
 
@@ -11,15 +12,15 @@ import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
-import org.processmining.models.anomaly.randomLogGenerator.RandomLogGeneratorModel;
+import org.processmining.models.anomaly.mutator.MutatorModel;
 
 @Plugin(
-		name = "Random Log Generator", 
+		name = "Mutator", 
 		returnLabels = { "XLog" }, 
 		returnTypes = { XLog.class }, 
 		parameterLabels = {"Log", "Parameters" }, 
 		userAccessible = true)
-public class RandomLogGeneratorPlugin {
+public class MutatorPlugin {
 	/**
 	 * Mining using default parameter values.
 	 * 
@@ -30,16 +31,17 @@ public class RandomLogGeneratorPlugin {
 	 * @return The workshop model mined from the given log using the default
 	 *         parameter values.
 	 * @throws ParseException 
+	 * @throws IOException 
 	 */
 	@UITopiaVariant(
 			affiliation = UITopiaVariant.POSTECH, 
 			author = "Dohyeon Kim", 
 			email = "kdohyeon@postech.ac.kr")
 	@PluginVariant(
-			variantLabel = "Random Log Generator, default", 
+			variantLabel = "Mutator, default", 
 			requiredParameterLabels = { 0 })
-	public XLog mineDefault(PluginContext context, XLog log) throws ParseException {
-		return mineParameters(context, log, new RandomLogGeneratorParameters());
+	public XLog mineDefault(PluginContext context, XLog log) throws ParseException, IOException {
+		return mineParameters(context, log, new MutatorParameters());
 	}
 	
 	/**
@@ -52,21 +54,24 @@ public class RandomLogGeneratorPlugin {
 	 * @return The workshop model mined from the given log using the
 	 *         user-provided parameter values.
 	 * @throws ParseException 
+	 * @throws IOException 
 	 */
 	@UITopiaVariant(
 			affiliation = UITopiaVariant.POSTECH, 
 			author = "Dohyeon Kim", 
 			email = "kdohyeon@postech.ac.kr")
 	@PluginVariant(
-			variantLabel = "Random Log Generator, dialog", 
+			variantLabel = "Mutator, dialog", 
 			requiredParameterLabels = { 0 })
-	public XLog mineDefault(UIPluginContext context, XLog log) throws ParseException {
-		RandomLogGeneratorParameters parameters = new RandomLogGeneratorParameters();
-		RandomLogGeneratorDialog dialog = new RandomLogGeneratorDialog(log, parameters);
-		InteractionResult result = context.showWizard("Random Log Generator", true, true, dialog);
+	public XLog mineDefault(UIPluginContext context, XLog log) throws ParseException, IOException {
+		MutatorParameters parameters = new MutatorParameters();
+		MutatorDialog dialog = new MutatorDialog(log, parameters);
+		InteractionResult result = context.showWizard("Mutator", true, true, dialog);
+		
 		if (result != InteractionResult.FINISHED) {
 			return null;
 		}
+		
 		return mineParameters(context, log, parameters);
 	}
 	
@@ -82,29 +87,30 @@ public class RandomLogGeneratorPlugin {
 	 * @return The workshop model mined from the given log using the given
 	 *         parameter values.
 	 * @throws ParseException 
+	 * @throws IOException 
 	 */
 	@UITopiaVariant(
 			affiliation = UITopiaVariant.POSTECH, 
 			author = "Dohyeon Kim", 
 			email = "kdohyeon@postech.ac.kr")
 	@PluginVariant(
-			variantLabel = "Random Log Generator, parameterized", 
+			variantLabel = "Mutator, parameterized", 
 			requiredParameterLabels = { 0, 1 })
-	public XLog mineParameters(PluginContext context, XLog log, RandomLogGeneratorParameters parameters) throws ParseException {
-		Collection<RandomLogGeneratorConnection> connections;
+	public XLog mineParameters(PluginContext context, XLog log, MutatorParameters parameters) throws ParseException, IOException {
+		Collection<MutatorConnection> connections;
 		try {
-			connections = context.getConnectionManager().getConnections(RandomLogGeneratorConnection.class, context, log);
-			for (RandomLogGeneratorConnection connection : connections) {
-				if (connection.getObjectWithRole(RandomLogGeneratorConnection.LOG).equals(log)
+			connections = context.getConnectionManager().getConnections(MutatorConnection.class, context, log);
+			for (MutatorConnection connection : connections) {
+				if (connection.getObjectWithRole(MutatorConnection.LOG).equals(log)
 						&& connection.getParameters().equals(parameters)) {
-					return connection.getObjectWithRole(RandomLogGeneratorConnection.MODEL);
+					return connection.getObjectWithRole(MutatorConnection.MODEL);
 				}
 			}
 		} catch (ConnectionCannotBeObtained e) {
 		}
 		
 		XLog model = mine(context, log, parameters);
-		context.addConnection(new RandomLogGeneratorConnection(log, parameters));
+		context.addConnection(new MutatorConnection(log, parameters));
 		return model;
 	}
 	
@@ -112,7 +118,7 @@ public class RandomLogGeneratorPlugin {
 	 * The actual mining of an event log for a workshop model given parameter
 	 * values.
 	 */
-	private XLog mine(PluginContext context, XLog log, RandomLogGeneratorParameters parameters) {
+	private XLog mine(PluginContext context, XLog log, MutatorParameters parameters) throws IOException, ParseException {
 		
 		/*
 		 * Inform the progress bar when we're done.
@@ -122,19 +128,16 @@ public class RandomLogGeneratorPlugin {
 		/*
 		 * Set the parameters here
 		 * */
-		parameters.setisTimeMutatorOn(true);
-		parameters.setMutationPercentageInCase((float)0.5);
 		
 		/*
 		 * Random Log Generator Model
 		 * */
-		RandomLogGeneratorModel model = new RandomLogGeneratorModel(log, parameters);
+		MutatorModel model = new MutatorModel(log, parameters);
 		
-		XLog mutatedLog = model.getMutatedLog();
 		
 		/*
 		 * Return the model.
 		 */
-		return mutatedLog;
+		return model.getMutatedLog();
 	}
 }

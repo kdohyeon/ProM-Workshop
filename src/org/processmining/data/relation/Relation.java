@@ -36,18 +36,35 @@ public class Relation {
 	
 	private String identifyRelationType() throws ParseException {
 		
-		String date_format = "yyyy-MM-dd";
+		String date_format = "yyyy-MM-dd HH:mm:ss";
 		DateFormat format = new SimpleDateFormat(date_format);
+		
+		antecedent.setStartTimestamp(antecedent.getStartTimestamp().replace("T", " "));
+		//antecedent.setStartTimestamp(antecedent.getStartTimestamp().replace("12", "13"));
+		
+		antecedent.setCompleteTimestamp(antecedent.getCompleteTimestamp().replace("T", " "));
+		//antecedent.setCompleteTimestamp(antecedent.getCompleteTimestamp().replace("12", "13"));
+		
+		consequent.setStartTimestamp(consequent.getStartTimestamp().replace("T", " "));
+		//consequent.setStartTimestamp(consequent.getStartTimestamp().replace("12", "13"));
+		
+		consequent.setCompleteTimestamp(consequent.getCompleteTimestamp().replace("T", " "));
+		//consequent.setCompleteTimestamp(consequent.getCompleteTimestamp().replace("12", "13"));
+		
+		
 		Date ante_start_date = format.parse(antecedent.getStartTimestamp());
 		Date cons_start_date = format.parse(consequent.getStartTimestamp());
 		Date ante_complete_date = format.parse(antecedent.getCompleteTimestamp());
 		Date cons_complete_date = format.parse(consequent.getCompleteTimestamp());
 		
+		
+		
 		String relType = ""; 
 		RelationType relTypeDef = new RelationType();
 		
 		//NumberFormat formatter = new DecimalFormat("#0.00");
-		long conversionValue = 24 * 60 * 60 * 1000; // day
+		//long conversionValue = 24 * 60 * 60 * 1000; // day
+		float conversionValue = 60 * 60 * 1000; // hour
 		//long diff = (complete_date.getTime() - start_date.getTime()) / (24 * 60 * 60 * 1000);
 		
 		//processingTime = String.valueOf(formatter.format(diff));
@@ -57,7 +74,7 @@ public class Relation {
 			//System.out.println("Relation 1");
 			relType = relTypeDef.getRELATIONTYPE1();
 			
-			long trans = (cons_start_date.getTime() - ante_complete_date.getTime()) / (conversionValue);
+			float trans = (cons_start_date.getTime() - ante_complete_date.getTime()) / (conversionValue);
 			transitionTime = trans;
 			
 		}else if(cons_start_date.equals(ante_complete_date)) {
@@ -68,13 +85,13 @@ public class Relation {
 			//System.out.println("Relation 3");
 			relType = relTypeDef.getRELATIONTYPE3();
 			
-			long overlap = (ante_complete_date.getTime() - cons_start_date.getTime()) / (conversionValue);
+			float overlap = (ante_complete_date.getTime() - cons_start_date.getTime()) / (conversionValue);
 			overlapTime = overlap;
 			
-			long trueX = (cons_start_date.getTime() - ante_start_date.getTime()) / (conversionValue);
+			float trueX = (cons_start_date.getTime() - ante_start_date.getTime()) / (conversionValue);
 			trueXTime = trueX;
 			
-			long trueY = (cons_complete_date.getTime() - ante_complete_date.getTime()) / (conversionValue);
+			float trueY = (cons_complete_date.getTime() - ante_complete_date.getTime()) / (conversionValue);
 			trueYTime = trueY;
 			
 		}else if(
@@ -83,30 +100,29 @@ public class Relation {
 			// relation 4
 			relType = relTypeDef.getRELATIONTYPE4();
 			
-			long trueX = 0;
-			long trueY = 0;
-			long overlap = 0;
+			float trueX = 0;
+			float trueY = 0;
+			float overlap = 0;
 			
 			if(ante_complete_date.before(cons_complete_date)) {
-				trueY = (long) (consequent.getProcessingTime() - antecedent.getProcessingTime());
-				overlap = (long) (antecedent.getProcessingTime());
+				trueY = consequent.getProcessingTime() - antecedent.getProcessingTime();
+				overlap = (antecedent.getProcessingTime());
 			}else {
-				trueX = (long) (antecedent.getProcessingTime() - consequent.getProcessingTime());
-				overlap = (long) (consequent.getProcessingTime());
+				trueX = antecedent.getProcessingTime() - consequent.getProcessingTime();
+				overlap = (consequent.getProcessingTime());
 			}
 			
 			trueXTime = trueX;
 			trueYTime = trueY;
 			overlapTime = overlap;
 			
-			
 		}else if(ante_start_date.before(cons_start_date) && ante_complete_date.after(cons_complete_date)){
 			// relation 5
 			relType = relTypeDef.getRELATIONTYPE5();
 			
-			long overlap = (long) consequent.getProcessingTime();
-			long trueX = (cons_start_date.getTime() - ante_start_date.getTime()) / (conversionValue);
-			long trueY = (ante_complete_date.getTime() - cons_complete_date.getTime()) / (conversionValue);
+			float overlap = consequent.getProcessingTime();
+			float trueX = (cons_start_date.getTime() - ante_start_date.getTime()) / (conversionValue);
+			float trueY = (ante_complete_date.getTime() - cons_complete_date.getTime()) / (conversionValue);
 			
 			overlapTime = overlap;
 			trueXTime = trueX;
@@ -116,8 +132,8 @@ public class Relation {
 			// relation 6
 			relType = relTypeDef.getRELATIONTYPE6();
 			
-			long overlap = (long)(consequent.getProcessingTime());
-			long trueX = (long)(antecedent.getProcessingTime() - consequent.getProcessingTime());
+			float overlap = (consequent.getProcessingTime());
+			float trueX = antecedent.getProcessingTime() - consequent.getProcessingTime();
 			//long trueY = (long)(consequent.getProcessingTime());
 			
 			trueXTime = trueX;
@@ -127,10 +143,17 @@ public class Relation {
 		}else if(ante_start_date.equals(cons_start_date) && ante_complete_date.equals(cons_complete_date)){
 			// relation 7
 			relType = relTypeDef.getRELATIONTYPE7();
-			long overlap = (long)(consequent.getProcessingTime());
+			float overlap = (consequent.getProcessingTime());
 			overlapTime = overlap;
 		}else {
 			relType = "error";
+			
+			System.out.println("########");
+			System.out.println("error");
+			System.out.println(antecedent.getCaseID());
+			System.out.println(antecedent.getCaseID() + ": " + antecedent.getActivityID() + " (" + antecedent.getStartTimestamp() + ", " + antecedent.getCompleteTimestamp() + ")");
+			System.out.println(consequent.getCaseID() + ": " + consequent.getActivityID() + " (" + consequent.getStartTimestamp() + ", " + consequent.getCompleteTimestamp() + ")");
+			System.out.println("########");
 		}
 		
 		return relType;		

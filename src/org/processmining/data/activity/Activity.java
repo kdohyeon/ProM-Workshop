@@ -29,14 +29,23 @@ public class Activity {
 	}
 	
 	private void calculateProcessingTime() throws ParseException {
-		String date_format = "yyyy-MM-dd";
+		String date_format = "yyyy-MM-dd HH:mm:ss";
+		start_timestamp = start_timestamp.replace("T", " ");
+		//start_timestamp = start_timestamp.replace("12", "13"); // because it detects 12 and 24 as the same hour, change the hour 12 to 13 temporarily
+		complete_timestamp = complete_timestamp.replace("T", " ");
+		//complete_timestamp = complete_timestamp.replace("12", "13"); // because it detects 12 and 24 as the same hour, change the hour 12 to 13 temporarily
 		DateFormat format = new SimpleDateFormat(date_format);
 		
 		Date start_date = format.parse(start_timestamp);
 		Date complete_date = format.parse(complete_timestamp);
 		
-		long diff = (complete_date.getTime() - start_date.getTime()) / (24 * 60 * 60 * 1000);
+		float conversionValue = 60 * 60 * 1000; // hour
+		float diff = ((complete_date.getTime() - start_date.getTime()) / (conversionValue));
 		//NumberFormat formatter = new DecimalFormat("#0.00");
+		
+		//System.out.println(start_timestamp + ", " + complete_timestamp);
+		//System.out.println(start_date.getTime() + ", " + complete_date.getTime() + ", " + diff);
+		
 		processingTime = diff;
 	}
 

@@ -2,15 +2,17 @@ package org.processmining.data.rules;
 
 public class ActivityResourceRule {
 	private String act;
+	private int freq;
 	private float minSupp;
 	private float minConf;
 	
-	public ActivityResourceRule(String act, float minSupp, float minConf) {
+	public ActivityResourceRule(String act, int freq, float minSupp, float minConf) {
 		this.act = act;
 		this.minSupp = minSupp;
 		this.minConf = minConf;
+		this.freq = freq;
 	}
-
+	
 	public String getAct() {
 		return act;
 	}
@@ -33,5 +35,17 @@ public class ActivityResourceRule {
 
 	public void setMinConf(float minConf) {
 		this.minConf = minConf;
+	}
+
+
+
+	public int getFreq() {
+		return freq;
+	}
+
+
+
+	public void setFreq(int freq) {
+		this.freq = freq;
 	}
 }

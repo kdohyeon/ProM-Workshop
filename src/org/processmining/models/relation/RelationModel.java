@@ -271,22 +271,27 @@ public class RelationModel {
 				for(int k = 0; k < relationList.size(); k++) {
 					String currRelation = relationList.get(k);
 					
-					int cnt = 0;
+					//int cnt = 0;
+					Map<String, Integer> checkCaseSet = new HashMap<String, Integer>();
 					for(int l = 0; l < relationArrayList.size(); l++) {
 						if(relationArrayList.get(l).getAntecedent().getActivityID().equals(currAntecedent) 
 								&& relationArrayList.get(l).getConsequent().getActivityID().equals(currConsequent)
 								&& relationArrayList.get(l).getRelationType().equals(currRelation)) {
-							cnt++;
+							//cnt++;
+							String caseID = relationArrayList.get(l).getAntecedent().getCaseID();
+							checkCaseSet.put(caseID, 1);
 						}	
 					}
 					
-					if(cnt > 0) {
-						float support = (float) (cnt * 1.0 / caseFrequency);
-						float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfActivity(currAntecedent));
+					if(checkCaseSet.size() > 0) {
+						//float support = (float) (cnt * 1.0 / caseFrequency);
+						//float confidence = (float) (cnt * 1.0 / actModel.getCaseFrequencyOfActivity(currAntecedent));
+						float support = (float) (checkCaseSet.size() * 1.0 / caseFrequency);
+						float confidence = (float) (checkCaseSet.size() * 1.0 / actModel.getCaseFrequencyOfActivity(currAntecedent));
 						
 						if(support > minSupp && confidence > minConf) {
-							RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, cnt, support, confidence);
-							relActivityMatrix.addRelationMatrixElement(elem);		
+							RelationMatrixElement elem = new RelationMatrixElement(currAntecedent, currConsequent, currRelation, checkCaseSet.size(), support, confidence);
+							relActivityMatrix.addRelationMatrixElement(elem);
 						}
 					}
 				}

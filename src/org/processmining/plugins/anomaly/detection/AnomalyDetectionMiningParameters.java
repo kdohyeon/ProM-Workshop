@@ -12,8 +12,9 @@ public class AnomalyDetectionMiningParameters {
 	
 	private float logRuleRatio;
 	
-	private float alpha;
-	private float beta;
+	private int controlFlow;
+	private int time;
+	private int resource;
 	
 	
 	public AnomalyDetectionMiningParameters() {
@@ -27,8 +28,9 @@ public class AnomalyDetectionMiningParameters {
 		
 		logRuleRatio = (float) 0.5;
 		
-		alpha = (float) 0.5;
-		beta = (float) (1.0 - alpha);
+		controlFlow = 1;
+		time = 1;
+		resource = 1;
 		
 	}
 
@@ -92,31 +94,36 @@ public class AnomalyDetectionMiningParameters {
 	}
 
 
-	public float getAlpha() {
-		return alpha;
-	}
-
-
-	public void setAlpha(float alpha) {
-		this.alpha = alpha;
-	}
-
-
-	public float getBeta() {
-		return beta;
-	}
-
-
-	public void setBeta(float beta) {
-		this.beta = beta;
-	}
-
 	public float getLogRuleRatio() {
 		return logRuleRatio;
 	}
 
 	public void setLogRuleRatio(float logRuleRatio) {
 		this.logRuleRatio = logRuleRatio;
+	}
+
+	public int getControlFlow() {
+		return controlFlow;
+	}
+
+	public void setControlFlow(int controlFlow) {
+		this.controlFlow = controlFlow;
+	}
+
+	public int getTime() {
+		return time;
+	}
+
+	public void setTime(int time) {
+		this.time = time;
+	}
+
+	public int getResource() {
+		return resource;
+	}
+
+	public void setResource(int resource) {
+		this.resource = resource;
 	}
 
 	

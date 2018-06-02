@@ -68,10 +68,10 @@ public class TimeActivityRuleMatchingModel extends AbstractRuleMatchingModel{
 				}
 			}
 			
-			System.out.println("Time Activity");
-			float unmatched = testActSet.size() - cnt;
-			float timeActivity = (float)( (unmatched * 1.0) / testActSet.size());
-			System.out.println(timeActivity);
+			//System.out.println("Time Activity - " + thisCase);
+			float unmatched = temp.size() - cnt;
+			float timeActivity = (float)( (unmatched * 1.0) / temp.size());
+			//System.out.println(timeActivity);
 			
 			// calculate
 			resultMap.put(thisCase, timeActivity);

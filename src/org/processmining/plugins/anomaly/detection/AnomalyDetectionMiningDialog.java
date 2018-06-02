@@ -4,17 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;
@@ -56,205 +52,131 @@ public class AnomalyDetectionMiningDialog extends JPanel {
 		parameterTitle.setBounds(10, 10, 200, 30);
 		parameterTitle.setFont(new Font("Dialog", Font.BOLD, 18));
 		
-		FlowLayout customLayout = new FlowLayout(FlowLayout.LEFT);
-		customLayout.setHgap(2);
+		FlowLayout flowLayout = new FlowLayout(FlowLayout.LEFT);
+		flowLayout.setHgap(2);
 		
-		int customPanelWidth = 405;
-		
-		/*
-		 * Sigma
-		 * */
-		JPanel sigmaPane = new JPanel(customLayout);
-		sigmaPane.setBackground(Color.gray);
-		
-		JLabel sigmaTitle = factory.createLabel("Sigma: ");
-		sigmaTitle.setFont(new Font("Dialog", Font.BOLD, 14));
-		
-		String[] sigmaOptions = {"1", "2", "3"};
-		final JComboBox<String> sigmaList = new JComboBox<String>(sigmaOptions);
-		
-		sigmaList.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				float sigma = Float.parseFloat(sigmaList.getSelectedItem().toString());
-				parameters.setSigma(sigma);
-			}			
-		});
-		
-		decorator.decorate(sigmaTitle);
-		decorator.decorate(sigmaList);
-		
-		sigmaPane.add(sigmaTitle);
-		sigmaPane.add(sigmaList);
 		
 		/*
-		 * Control-flow with Time
+		 * Control-flow, Time, & Resource
 		 * */
-		JPanel timePane = new JPanel(customLayout);
-		timePane.setBackground(Color.gray);
+		JPanel weightPane = new JPanel(flowLayout);
+		weightPane.setBackground(Color.GRAY);
 		
-		JLabel timeTitle = factory.createLabel(("Time Options: "));
-		timeTitle.setFont(new Font("Dialog", Font.BOLD, 14));
+		JLabel weightTitle = factory.createLabel("Weight of Control-flow, Time, and Resource: ");
+		weightTitle.setFont(new Font("Dialog", Font.BOLD, 14));
+		
+		final JLabel cfLabel = new JLabel("Control-flow");
+		final JLabel tLabel = new JLabel("Time");
+		final JLabel rLabel = new JLabel("Resource");
+		
+		cfLabel.setPreferredSize(new Dimension(60,20));
+		tLabel.setPreferredSize(new Dimension(60,20));
+		rLabel.setPreferredSize(new Dimension(60,20));
+		
+		final JTextField cfTextField = new JTextField(5);
+		final JTextField tTextField = new JTextField(5);
+		final JTextField rTextField = new JTextField(5);
+		cfTextField.setText("1");
+		tTextField.setText("1");
+		rTextField.setText("1");
+		
+		
+		cfTextField.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent e) {
+				System.out.println(getValue());
+			}
+			
+			public void insertUpdate(DocumentEvent e) {
+				System.out.println(getValue());
+			}
+			
+			public void changedUpdate(DocumentEvent e) {
+				System.out.println(getValue());
+			}
+			
+			public int getValue() {
+				int result = 0;
+				if(cfTextField.getText().equals("")) {
+					
+				}else {
+					result = Integer.parseInt(cfTextField.getText());	
+				}
 				
-		final JCheckBox processingCB = new JCheckBox("Processing Time");
-		processingCB.setSelected(true);
-		processingCB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				boolean selected = processingCB.isSelected();
-				parameters.setProcessing(selected);
+				parameters.setControlFlow(result);
+				return result;
 			}
 		});
 		
-		final JCheckBox transitionCB = new JCheckBox("Transition Time");
-		transitionCB.setSelected(true);
-		transitionCB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				boolean selected = transitionCB.isSelected();
-				parameters.setTransition(selected);
+		tTextField.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent e) {
+				System.out.println(getValue());
 			}
-		});
-		final JCheckBox overlapCB = new JCheckBox("Overlap Time");
-		overlapCB.setSelected(true);
-		overlapCB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				boolean selected = overlapCB.isSelected();
-				parameters.setOverlap(selected);
+			
+			public void insertUpdate(DocumentEvent e) {
+				System.out.println(getValue());
 			}
-		});
-		final JCheckBox trueXCB = new JCheckBox("TrueX Time");
-		trueXCB.setSelected(true);
-		trueXCB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				boolean selected = trueXCB.isSelected();
-				parameters.setTrueX(selected);
+			
+			public void changedUpdate(DocumentEvent e) {
+				System.out.println(getValue());
 			}
-		});
-		final JCheckBox trueYCB = new JCheckBox("TrueY Time");
-		trueYCB.setSelected(true);
-		trueYCB.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				boolean selected = trueYCB.isSelected();
-				parameters.setTrueY(selected);
-			}
-		});
-		
-		decorator.decorate(timeTitle);
-		decorator.decorate(processingCB);
-		decorator.decorate(transitionCB);
-		decorator.decorate(overlapCB);
-		decorator.decorate(trueXCB);
-		decorator.decorate(trueYCB);
-		
-		timePane.add(timeTitle);
-		timePane.add(processingCB);
-		timePane.add(transitionCB);
-		timePane.add(overlapCB);
-		timePane.add(trueXCB);
-		timePane.add(trueYCB);
-		
-		/*
-		 * Log to Rule Ratio
-		 * */
-		JPanel logToRuleRatioPane = new JPanel(customLayout);
-		logToRuleRatioPane.setBackground(Color.GRAY);
-		
-		JLabel logToRuleRatioTitle = factory.createLabel("Log to rule ratio: ");
-		logToRuleRatioTitle.setFont(new Font("Dialog", Font.BOLD, 14));
-		
-		final JLabel logToRuleRatioLabel = new JLabel("0.50");
-		logToRuleRatioLabel.setPreferredSize(new Dimension(60,20));
-		
-		final JSlider logToRuleRatioSlider = new JSlider();
-		
-		logToRuleRatioSlider.setPreferredSize(new Dimension(customPanelWidth - 60, 20));
-		logToRuleRatioSlider.setMajorTickSpacing(10);
-		logToRuleRatioSlider.setMinorTickSpacing(5);
-		logToRuleRatioSlider.setPaintTicks(true);
-		logToRuleRatioSlider.setPaintLabels(true);
-		logToRuleRatioSlider.setValue(50);
-		parameters.setLogRuleRatio((float)0.5);
-		logToRuleRatioSlider.addChangeListener(new ChangeListener() {
-
-			public void stateChanged(ChangeEvent e) {
-				// TODO Auto-generated method stub
-				float ratio = (float)(logToRuleRatioSlider.getValue() * 1.0 / 100);
-				parameters.setLogRuleRatio(ratio);
-				String labelStr = String.valueOf(ratio);
-				logToRuleRatioLabel.setText(labelStr);
-			}
-		});
-		
-		decorator.decorate(logToRuleRatioTitle);
-		decorator.decorate(logToRuleRatioSlider);
-		decorator.decorate(logToRuleRatioLabel);
-		
-		logToRuleRatioPane.add(logToRuleRatioTitle);
-		logToRuleRatioPane.add(logToRuleRatioSlider);
-		logToRuleRatioPane.add(logToRuleRatioLabel);
-		
-		/*
-		 * Alpha & Beta
-		 * */
-		JPanel alphaRatioPane = new JPanel(customLayout);
-		alphaRatioPane.setBackground(Color.GRAY);
-		
-		JLabel alphaRatioTitle = factory.createLabel("Alpha & Beta ratio: ");
-		alphaRatioTitle.setFont(new Font("Dialog", Font.BOLD, 14));
-		
-		final JLabel alphaRatioLabel = new JLabel("Alpha: 0.50");
-		final JLabel betaRatioLabel = new JLabel("Beta: 0.50");
-		alphaRatioLabel.setPreferredSize(new Dimension(60,20));
-		betaRatioLabel.setPreferredSize(new Dimension(60,20));
-		
-		final JSlider alphaRatioSlider = new JSlider();
-		
-		alphaRatioSlider.setPreferredSize(new Dimension(customPanelWidth - 60, 20));
-		alphaRatioSlider.setMajorTickSpacing(10);
-		alphaRatioSlider.setMinorTickSpacing(5);
-		alphaRatioSlider.setPaintTicks(true);
-		alphaRatioSlider.setPaintLabels(true);
-		alphaRatioSlider.setValue(50);
-		parameters.setAlpha((float)0.5);
-		parameters.setBeta((float)0.5);
-		alphaRatioSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				// TODO Auto-generated method stub
-				float alpha = (float)(alphaRatioSlider.getValue() * 1.0 / 100);
-				float beta = 1 - alpha;
+			
+			public int getValue() {
+				int result = 0;
+				if(tTextField.getText().equals("")) {
+					
+				}else {
+					result = Integer.parseInt(tTextField.getText());	
+				}
 				
-				parameters.setAlpha(alpha);
-				parameters.setBeta(beta);
-				
-				String labelStr1 = String.valueOf("Alpha: " + alpha);
-				String labelStr2 = String.valueOf("Beta: " + beta);
-				
-				alphaRatioLabel.setText(labelStr1);
-				betaRatioLabel.setText(labelStr2);
+				parameters.setTime(result);
+				return result;
 			}
 		});
 		
-		decorator.decorate(alphaRatioTitle);
-		decorator.decorate(alphaRatioLabel);
-		decorator.decorate(betaRatioLabel);
-		decorator.decorate(alphaRatioSlider);
+		rTextField.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent e) {
+				System.out.println(getValue());
+			}
+			
+			public void insertUpdate(DocumentEvent e) {
+				System.out.println(getValue());
+			}
+			
+			public void changedUpdate(DocumentEvent e) {
+				System.out.println(getValue());
+			}
+			
+			public int getValue() {
+				int result = 0;
+				if(rTextField.getText().equals("")) {
+					
+				}else {
+					result = Integer.parseInt(rTextField.getText());	
+				}
+				
+				parameters.setResource(result);
+				return result;
+			}
+		});
 		
-		alphaRatioPane.add(alphaRatioTitle);
-		alphaRatioPane.add(alphaRatioSlider);
-		alphaRatioPane.add(alphaRatioLabel);
-		alphaRatioPane.add(betaRatioLabel);
+		
+		decorator.decorate(weightTitle);
+		decorator.decorate(cfLabel);
+		decorator.decorate(tLabel);
+		decorator.decorate(rLabel);
+		
+		weightPane.add(weightTitle);
+		weightPane.add(cfLabel);
+		weightPane.add(cfTextField);
+		weightPane.add(tLabel);
+		weightPane.add(tTextField);
+		weightPane.add(rLabel);
+		weightPane.add(rTextField);
 		
 		/*
 		 * Add to parameter panel
 		 * */
-		parameterPanel.add(sigmaPane);
-		parameterPanel.add(timePane);
-		parameterPanel.add(logToRuleRatioPane);
-		parameterPanel.add(alphaRatioPane);
+		parameterPanel.add(weightPane);
 		
 		add(parameterTitle);
 		add(parameterPanel);
@@ -263,4 +185,6 @@ public class AnomalyDetectionMiningDialog extends JPanel {
 		repaint();
 		
 	}
+	
+	
 }

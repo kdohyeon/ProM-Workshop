@@ -33,6 +33,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 	Map<String, Float> cfMap = new HashMap<String, Float>();
 	Map<String, Float> tMap = new HashMap<String, Float>();
 	Map<String, Float> rActResMap = new HashMap<String, Float>();
+	Map<String, Float> anomalyScoreMap = new HashMap<String, Float>();
 	
 	//private Map<String, AnomalyScore> anomalyScoreMap;
 	//private Map<String, AnomalyScore> sortedAnomalyScoreMap;
@@ -139,11 +140,15 @@ public class AnomalyDetectionModel implements HTMLToString{
 		/*
 		 * Overall Anomaly Score
 		 * */
-		Map<String, Float> anomalyScoreMap = new HashMap<String, Float>();
+		
 		float weight5, weight6, weight7;
-		weight5 = (float)(1*1.0/3);
-		weight6 = (float)(1*1.0/3);
-		weight7 = (float)(1*1.0/3);
+		int cfWeight = parameters.getControlFlow();
+		int tWeight = parameters.getTime();
+		int rWeight = parameters.getResource();
+		int sum = cfWeight + tWeight + rWeight;
+		weight5 = (float)(cfWeight*1.0/sum);
+		weight6 = (float)(tWeight*1.0/sum);
+		weight7 = (float)(rWeight*1.0/sum);
 		
 		for(int i = 0; i < caseIDList.size(); i++) {
 			String thisCase = caseIDList.get(i);
@@ -435,7 +440,8 @@ public class AnomalyDetectionModel implements HTMLToString{
 		buffer.append("<tr>");
 		buffer.append("<th> No. </th>");
 		buffer.append("<th> Case ID </th>");
-		buffer.append("<th> Anomaly Score </th>");
+		buffer.append("<th> Anomaly Score - Normalized </th>");
+		buffer.append("<th> Anomaly Score - Actual </th>");
 		buffer.append("<th> Control-Flow Score </th>");
 		buffer.append("<th> Time Score </th>");
 		buffer.append("<th> Resource Score </th>");
@@ -458,6 +464,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 			buffer.append("<td>" + key + "</td>");
 			
 			buffer.append("<td>" + sortedAnomalyScoreMap.get(key) + "</td>");
+			buffer.append("<td>" + anomalyScoreMap.get(key) + "</td>");			
 			buffer.append("<td>" + cfMap.get(key) + "</td>");
 			buffer.append("<td>" + tMap.get(key) + "</td>");
 			buffer.append("<td>" + rActResMap.get(key) + "</td>");

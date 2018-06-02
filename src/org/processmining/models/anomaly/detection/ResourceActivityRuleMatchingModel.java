@@ -24,7 +24,7 @@ public class ResourceActivityRuleMatchingModel extends AbstractRuleMatchingModel
 		resultMap = new HashMap<String, Float>();
 		
 		/*
-		 * Activity
+		 * Resource
 		 * */
 		// get the size of r act rule size
 		int rResActRuleSize = trainingActModel.getActResRuleModel().getRuleSize();
@@ -59,7 +59,7 @@ public class ResourceActivityRuleMatchingModel extends AbstractRuleMatchingModel
 			float b = this.computeRuleToLog(resourceActivityRules, temp);		
 			
 			// print
-			System.out.println("Case: " + thisCase + " -- " + a + ", " + b);
+			//System.out.println("Case: " + thisCase + " -- " + a + ", " + b);
 			
 			// calculate
 			float weight1, weight2;

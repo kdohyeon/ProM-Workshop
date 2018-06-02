@@ -65,7 +65,7 @@ public class ControlFlowRelationRuleMatchingModel extends AbstractRuleMatchingMo
 			float b = this.computeRuleToLog(trainingRelationSet, temp);		
 			
 			// print
-			System.out.println("Case: " + thisCase + " -- " + a + ", " + b);
+			//System.out.println("Case: " + thisCase + " -- " + a + ", " + b);
 			
 			// calculate
 			float weight1, weight2;

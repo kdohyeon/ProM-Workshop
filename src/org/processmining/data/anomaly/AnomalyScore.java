@@ -24,9 +24,11 @@ public class AnomalyScore {
 	 * Calculate the overall score
 	 * */
 	private void calculateOverallScore() {
+		/*
 		System.out.println(parameters.getAlpha() + ", " + cfScore.getControlFlowScore() + ", " + parameters.getBeta() + ", " + rScore.getResourceScore());
 		overallScore = parameters.getAlpha() * cfScore.getControlFlowScore() + parameters.getBeta() * rScore.getResourceScore();
 		System.out.println(overallScore);
+		*/
 	}
 	
 	/*

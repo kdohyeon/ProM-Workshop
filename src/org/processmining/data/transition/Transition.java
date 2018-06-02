@@ -58,6 +58,10 @@ public class Transition{
 		return relation;
 	}
 	
+	public String getActivityPair() {
+		return fromActivityID + "_" + relation + "_" + toActivityID;
+	}
+	
 	public int calculateFreq() {
 		freq = relationList.size();
 		return freq;

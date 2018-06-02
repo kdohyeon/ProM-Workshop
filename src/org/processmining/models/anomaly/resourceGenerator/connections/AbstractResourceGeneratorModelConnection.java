@@ -1,9 +1,9 @@
-package org.processmining.models.anomaly.randomLogGenerator.connections;
+package org.processmining.models.anomaly.resourceGenerator.connections;
 
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.connections.impl.AbstractConnection;
 
-public class RandomLogGeneratorModelConnection<Parameters> extends AbstractConnection {
+public class AbstractResourceGeneratorModelConnection<Parameters> extends AbstractConnection {
 	/**
 	 * Label for the log end of the connection.
 	 */
@@ -24,13 +24,13 @@ public class RandomLogGeneratorModelConnection<Parameters> extends AbstractConne
 	 * 
 	 * @param log
 	 *            The event log.
-	 * @param model2
+	 * @param model
 	 *            The mined workshop model.
 	 * @param parameters
 	 *            The parameters used to mine the model from the log.
 	 */
-	public RandomLogGeneratorModelConnection(XLog log, Parameters parameters) {
-		super("Random Log Generator");
+	public AbstractResourceGeneratorModelConnection(XLog log, Parameters parameters) {
+		super("Resource Generator");
 		put(LOG, log);
 		this.parameters = parameters;
 	}

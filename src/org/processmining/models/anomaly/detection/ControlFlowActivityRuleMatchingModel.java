@@ -58,7 +58,7 @@ public class ControlFlowActivityRuleMatchingModel extends AbstractRuleMatchingMo
 			float b = this.computeRuleToLog(activityRules, temp);		
 			
 			// print
-			System.out.println("Case: " + thisCase + " -- " + a + ", " + b);
+			//System.out.println("Case: " + thisCase + " -- " + a + ", " + b);
 			
 			// calculate
 			float weight1, weight2;

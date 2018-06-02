@@ -30,6 +30,10 @@ public class TrueX {
 		this.relationList = new ArrayList<Relation>();
 	}
 	
+	public String getActivityPair() {
+		return fromActivityID + "_" + relation + "_" + toActivityID;
+	}
+	
 	public void addRelation(Relation rel) {
 		relationList.add(rel);
 	}

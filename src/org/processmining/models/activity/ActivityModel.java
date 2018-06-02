@@ -118,7 +118,7 @@ public class ActivityModel {
 				float support = (float) (checkCaseSet.size() * 1.0 / caseFrequency);
 				float confidence = (float) (checkCaseSet.size() * 1.0 / this.getCaseFrequencyOfResource(thisResource));
 				if(support > minSupp && confidence > minConf) {
-					ActivityResourceRule rule = new ActivityResourceRule(thisActivityResource, support, confidence);
+					ActivityResourceRule rule = new ActivityResourceRule(thisActivityResource, checkCaseSet.size(), support, confidence);
 					actResRuleModel.addActivityResourceRule(rule);
 				}
 			}
@@ -136,6 +136,7 @@ public class ActivityModel {
 		// for each case
 		for(int i = 0; i < log.size(); i++) {
 			String caseID = log.get(i).getAttributes().get("concept:name").toString();
+			System.out.println(caseID);
 			
 			// for each event
 			for(int j = 0; j < log.get(i).size(); j++) {
