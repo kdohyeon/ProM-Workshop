@@ -124,12 +124,13 @@ public class AnomalyProfileMiningPlugin {
 		 * Get Control-flow rules
 		 * */
 		// Activity rules
+		System.out.println("...Control-flow, Activity Rules...");
 		ActivityModel actModel = new ActivityModel(log);
 		actModel.setMinSupp(parameters.getMinSupport());
 		actModel.setMinConf(parameters.getMinConfidence());
 		actModel.calculateActivityRule();
 		
-		System.out.println("Control-flow, Activity Rules");
+		
 		for(int i = 0; i < actModel.getActivityRule().getRuleSize(); i++) {
 			System.out.println(
 					actModel.getActivityRule().getRuleList().get(i).getAct()
@@ -138,15 +139,18 @@ public class AnomalyProfileMiningPlugin {
 		}
 		
 		// Relation rules
+		System.out.println("...Control-flow, Relation Rules...");
+		System.out.println("...Modelling...");
 		RelationModel relModel = new RelationModel(actModel);
 		relModel.setMinSupp(parameters.getMinSupport());
 		relModel.setMinConf(parameters.getMinConfidence());
 		relModel.calculateRelationActivityMatrix();
 		relModel.calculateRelationResourceMatrix();
 		RelationMatrix activityRelMatrix = new RelationMatrix();
+		System.out.println("...Activity Relation Matrix...");
 		activityRelMatrix = relModel.getRelationActivityMatrix();
 		
-		System.out.println("Control-flow, Relation Rules");
+		
 		activityRelMatrix.printRelationMatrix();
 		
 		

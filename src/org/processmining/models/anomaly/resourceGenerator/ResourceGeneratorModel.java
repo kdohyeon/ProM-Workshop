@@ -59,19 +59,23 @@ public class ResourceGeneratorModel {
 	
 	private int maxAnomalyResource;
 	
+	private Set<String> activitySet;
+	
 	public ResourceGeneratorModel(XLog log, ResourceGeneratorParameters parameters) throws IOException, ParseException {
 		System.out.println("Mutator Model");
 		/*
 		 * Parameters
 		 * */
+		this.log = log;
 		float dp = parameters.getDeviationPercentageCase();
 		String type = parameters.getDeviationType();
 		System.out.println("Percentage: " + dp);
 		System.out.println("Type: " + type);
 		int caseSize = log.size();
-		threshold = (float) 0.8;
+		threshold = (float) 0.9;
 		maxAnomalyResource = 0;
 		trainingOrTestPercentage = (float) 0.5;
+		activitySet = new HashSet<String>();
 		defineActivityResource();
 		
 		outputPath = outputPath + log.getAttributes().get("concept:name") + "_resource" + ".csv";
@@ -102,13 +106,13 @@ public class ResourceGeneratorModel {
 		
 		// for each case (trace) in this log
 		for(int i = 0; i < caseSize; i++) {
-//		for(int i = 0; i < 2; i++) {		
+//		for(int i = 0; i < 5; i++) {		
 			// this case
 			XTrace thisTrace = log.get(i);
 			XTrace newTrace;
 			String traceID = thisTrace.getAttributes().get("concept:name").toString();
 			
-			System.out.println("Case ID: " + traceID);
+			//System.out.println("Case ID: " + traceID);
 			
 			XAttributeMap newAttributeMap = thisTrace.getAttributes();
 			XLogFunctions.putLiteral(newAttributeMap, "Flag", "Normal");
@@ -163,36 +167,10 @@ public class ResourceGeneratorModel {
 				
 				String thisActivity = oldEvent.getAttributes().get("concept:name").toString();
 				String thisResource = "";
-				String thisEventID = traceID + "_" + cnt;
+				String thisEventID = "";
 				String thisEventType = oldEvent.getAttributes().get("lifecycle:transition").toString();
 				
 				System.out.println("Activity: " + thisActivity + ", EventType: " + thisEventType);
-				
-				// get resource
-				if(newTrace.size() == 0) {
-					thisResource = getRandomResource(thisActivity, randomFloat.getRandomNumber(), j);
-				}else {
-					boolean resourceExists = false;
-					
-					for(int k = 0; k < newTrace.size(); k++) {
-						// if an activity from old event is already in the newTrace, then get the resource name
-						if(newTrace.get(k).getAttributes().get("concept:name").toString().equals(thisActivity)) {
-							thisResource = newTrace.get(k).getAttributes().get("org:resource").toString();
-							resourceExists = true;
-						}
-						
-						// break!
-						if(resourceExists) {
-							break;
-						}
-					}
-
-					if(!resourceExists) {
-						thisResource = getRandomResource(thisActivity, randomFloat.getRandomNumber(), j);
-					}					
-				}
-				
-				XLogFunctions.setResource(newEvent, thisResource);
 				
 				// get event id
 				if(newTrace.size() == 0) {
@@ -231,6 +209,34 @@ public class ResourceGeneratorModel {
 				}
 				
 				XLogFunctions.setEventID(newEvent, thisEventID);
+				
+				// get resource
+				if(newTrace.size() == 0) {
+					thisResource = getRandomResource(thisActivity, randomFloat.getRandomNumber(), j);
+				}else {
+					boolean resourceExists = false;
+					
+					for(int k = 0; k < newTrace.size(); k++) {
+						// if an activity from old event is already in the newTrace, then get the resource name
+						if(newTrace.get(k).getAttributes().get("EventID").toString().equals(thisEventID)) {
+							thisResource = newTrace.get(k).getAttributes().get("org:resource").toString();
+							resourceExists = true;
+						}
+						
+						// break!
+						if(resourceExists) {
+							break;
+						}
+					}
+
+					if(!resourceExists) {
+						thisResource = getRandomResource(thisActivity, randomFloat.getRandomNumber(), j);
+					}					
+				}
+				
+				XLogFunctions.setResource(newEvent, thisResource);
+				
+				
 				
 				// new event
 				newTrace.add(newEvent);
@@ -292,33 +298,60 @@ public class ResourceGeneratorModel {
 	}
 	
 	private void defineActivityResource() {
+		for(int i = 0; i < log.size(); i++) {
+			XTrace thisTrace = log.get(i);
+			for(int j = 0; j < thisTrace.size(); j++) {
+				XEvent thisEvent = thisTrace.get(j);
+				activitySet.add(thisEvent.getAttributes().get("concept:name").toString());
+			}
+		}
+		
 		activityResourceMap = new HashMap<String, String>();
+		int cnt = 0;
+		int index = 1;
+		Iterator<String> itr = activitySet.iterator();
+		while(itr.hasNext()) {
+			
+			String key = itr.next();
+			String resource = "Resource " + index;
+			activityResourceMap.put(key, resource);
+			
+			cnt++;
+			
+			if(cnt == 2) {
+				index++;
+				cnt = 0;
+			}
+		}
+		
+		/*
 		activityResourceMap.put("Activity A", "Resource 1"); // 1
 		activityResourceMap.put("Activity B", "Resource 1"); // 2
-		activityResourceMap.put("Activity C", "Resource 2"); // 3
+		activityResourceMap.put("Activity C", "Resource 1"); // 3
 		activityResourceMap.put("Activity D", "Resource 2"); // 4
-		activityResourceMap.put("Activity E", "Resource 3"); // 5
-		activityResourceMap.put("Activity F", "Resource 3"); // 6 
-		activityResourceMap.put("Activity G", "Resource 4"); // 7
-		activityResourceMap.put("Activity H", "Resource 4"); // 8
-		activityResourceMap.put("Activity I", "Resource 5"); // 9
-		activityResourceMap.put("Activity J", "Resource 5"); // 10
-		activityResourceMap.put("Activity K", "Resource 6"); // 11
-		activityResourceMap.put("Activity L", "Resource 6"); // 12
-		activityResourceMap.put("Activity M", "Resource 7"); // 13
-		activityResourceMap.put("Activity N", "Resource 7"); // 14
-		activityResourceMap.put("Activity O", "Resource 8"); // 15
-		activityResourceMap.put("Activity P", "Resource 8"); // 16
-		activityResourceMap.put("Activity Q", "Resource 9"); // 17
-		activityResourceMap.put("Activity R", "Resource 9"); // 18
-		activityResourceMap.put("Activity S", "Resource 10"); // 19
-		activityResourceMap.put("Activity T", "Resource 10"); // 20
-		activityResourceMap.put("Activity U", "Resource 11"); // 21
-		activityResourceMap.put("Activity V", "Resource 11"); // 22
-		activityResourceMap.put("Activity W", "Resource 12"); // 23
-		activityResourceMap.put("Activity X", "Resource 12"); // 24
-		activityResourceMap.put("Activity Y", "Resource 13"); // 25
-		activityResourceMap.put("Activity Z", "Resource 13"); // 26
+		activityResourceMap.put("Activity E", "Resource 2"); // 5
+		activityResourceMap.put("Activity F", "Resource 2"); // 6 
+		activityResourceMap.put("Activity G", "Resource 3"); // 7
+		activityResourceMap.put("Activity H", "Resource 3"); // 8
+		activityResourceMap.put("Activity I", "Resource 3"); // 9
+		activityResourceMap.put("Activity J", "Resource 4"); // 10
+		activityResourceMap.put("Activity K", "Resource 4"); // 11
+		activityResourceMap.put("Activity L", "Resource 4"); // 12
+		activityResourceMap.put("Activity M", "Resource 5"); // 13
+		activityResourceMap.put("Activity N", "Resource 5"); // 14
+		activityResourceMap.put("Activity O", "Resource 5"); // 15
+		activityResourceMap.put("Activity P", "Resource 6"); // 16
+		activityResourceMap.put("Activity Q", "Resource 6"); // 17
+		activityResourceMap.put("Activity R", "Resource 6"); // 18
+		activityResourceMap.put("Activity S", "Resource 7"); // 19
+		activityResourceMap.put("Activity T", "Resource 7"); // 20
+		activityResourceMap.put("Activity U", "Resource 7"); // 21
+		activityResourceMap.put("Activity V", "Resource 8"); // 22
+		activityResourceMap.put("Activity W", "Resource 8"); // 23
+		activityResourceMap.put("Activity X", "Resource 8"); // 24
+		activityResourceMap.put("Activity Y", "Resource 9"); // 25
+		activityResourceMap.put("Activity Z", "Resource 9"); // 26
+		*/
 		
 	}
 	

@@ -22,25 +22,31 @@ public class AnomalyProfileModel implements HTMLToString{
 		this.setActModel(actModel);
 		this.setRelModel(relModel);
 		
+		System.out.println("...Processing Profile...");
 		ProcessingProfileModel processingModel = new ProcessingProfileModel(actModel);
 		//processingModel.printProcessingProfile();
 		setProcessingModel(processingModel);
 		
+		System.out.println("...Relation Profile...");
 		RelationProfileModel performnaceModel = new RelationProfileModel(relModel);
 		setPerformanceModel(performnaceModel);
 		
+		System.out.println("...Transition Profile...");
 		TransitionProfileModel transitionModel = new TransitionProfileModel(relModel);
 		//transitionModel.printTransitionProfile();
 		setTransitionModel(transitionModel);
 		
+		System.out.println("...Overlap Profile...");
 		OverlapProfileModel overlapModel = new OverlapProfileModel(relModel);
 		//overlapModel.printOverlapProfile();
 		setOverlapModel(overlapModel);
 		
+		System.out.println("...True X Profile...");
 		TrueXProfileModel trueXModel = new TrueXProfileModel(relModel);
 		//trueXModel.printTrueXProfile();
 		setTrueXModel(trueXModel);
 		
+		System.out.println("...True Y Profile...");
 		TrueYProfileModel trueYModel = new TrueYProfileModel(relModel);
 		//trueYModel.printTrueYProfile();
 		setTrueYModel(trueYModel);

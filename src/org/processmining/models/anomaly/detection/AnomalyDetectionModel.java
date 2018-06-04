@@ -33,11 +33,11 @@ public class AnomalyDetectionModel implements HTMLToString{
 	Map<String, Float> cfMap = new HashMap<String, Float>();
 	Map<String, Float> tMap = new HashMap<String, Float>();
 	Map<String, Float> rActResMap = new HashMap<String, Float>();
-	Map<String, Float> anomalyScoreMap = new HashMap<String, Float>();
+	Map<String, Float> anomalyScoreMap = new HashMap<String, Float>(); // un-normalized map
 	
 	//private Map<String, AnomalyScore> anomalyScoreMap;
 	//private Map<String, AnomalyScore> sortedAnomalyScoreMap;
-	private Map<String, Float> sortedAnomalyScoreMap;
+	private Map<String, Float> sortedAnomalyScoreMap; // normalized map
 	
 	PathDefinition path = new PathDefinition();
 	File file = new File(path.getCurrPathTestRelation());
@@ -48,7 +48,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 		//this.profileModel = profileModel;
 		//anomalyScoreMap = new HashMap<String, AnomalyScore>();
 		//sortedAnomalyScoreMap = new LinkedHashMap<String, AnomalyScore>();
-		sortedAnomalyScoreMap = new LinkedHashMap<String, Float>();
+		sortedAnomalyScoreMap = new LinkedHashMap<String, Float>(); // normalized map
 		
 		/*
 		 * Parameters
@@ -191,79 +191,98 @@ public class AnomalyDetectionModel implements HTMLToString{
 		Iterator<String> anomalyIter = sortedAnomalyScoreMap.keySet().iterator();
 		while(anomalyIter.hasNext()) {
 			String key = anomalyIter.next();
-			System.out.println("key, value: " + key + ", " + sortedAnomalyScoreMap.get(key));
+			//System.out.println("key, value: " + key + ", " + sortedAnomalyScoreMap.get(key));
 		}
 		
+ 
+		System.out.println("... Calculate evaluation measures...");
+		// get training anomaly flag
 		/*
-		 * Control-flow Perspective Rule Matching
-		 * */
-		/*
-		ControlFlowRuleMatchingModel cfRuleMatching = new ControlFlowRuleMatchingModel(
-				trainingActModel, testActModel, trainingRelModel, testRelModel, profileModel, parameters);
-		
-		System.out.println(" ### Control-Flow Anomaly Score ###");
-		Map<String, ControlFlowScore> controlFlowScoreMap = new HashMap<String, ControlFlowScore>();
-		controlFlowScoreMap = cfRuleMatching.getControlFlowScore();
-		Iterator<String> cfIter = controlFlowScoreMap.keySet().iterator();
-		while(cfIter.hasNext()) {
-			String key = cfIter.next();
-			System.out.println("key, value: " + key + ", " + controlFlowScoreMap.get(key).getControlFlowScore());
-		}
-		*/
-		/*
-		 * Resource Perspective Rule Matching
-		 * */
-		/*
-		ResourceRuleMatchingModel rRuleMatching = new ResourceRuleMatchingModel(
-				trainingActModel, testActModel, trainingRelModel, testRelModel, profileModel, parameters);
-		
-		System.out.println(" ### Resource Anomaly Score ###");
-		Map<String, ResourceScore> resourceScoreMap = new HashMap<String, ResourceScore>();
-		resourceScoreMap = rRuleMatching.getResourceScore();
-		Iterator<String> rIter = resourceScoreMap.keySet().iterator();
-		while(rIter.hasNext()) {
-			String key = rIter.next();
-			System.out.println("key, value: " + key + ", " + resourceScoreMap.get(key).getResourceScore());
+		Iterator<String> it = log.get(0).get(0).getAttributes().keySet().iterator();
+		while(it.hasNext()) {
+			String key = it.next();
+			System.out.println(key + ", " + log.get(0).get(0).getAttributes().get(key).toString());
 		}
 		*/
 		
-		/*
-		 * Anomaly Score
-		 * */
-		//System.out.println(" ### Overall Anomaly Score ###");
-		
-		// Change the parameter (ratio of Log-To-Rule and Rule-To-Log by the frequency of each perspective's rules
-		/*
-		int a = 0;
-		int b = 0;
-		
-		if(trainingRelModel.getRelationActivityMatrix().getRelationMatrixListSize() > 0) {
-			a = trainingRelModel.getRelationActivityMatrix().getRelationMatrixListSize();
+		//System.out.println("Actual Flag");
+		Map<String, String> actualFlagMap = new HashMap<String, String>();
+		for(int i = 0; i < log.size(); i++) {
+			String caseID = log.get(i).getAttributes().get("concept:name").toString();
+			String flag = log.get(i).get(0).getAttributes().get("Flag").toString();
+			actualFlagMap.put(caseID, flag);
+			//System.out.println(caseID + ", " + flag);
 		}
 		
-		if(trainingRelModel.getRelationResourceMatrix().getRelationMatrixListSize() > 0) {
-			b = trainingRelModel.getRelationResourceMatrix().getRelationMatrixListSize();
+		// get test anomaly flag
+		System.out.println("##############");
+		System.out.println("Predicted Flag");
+		float anomalyThreshold = (float) 0.01;
+		while(anomalyThreshold <= 1) {
+			// Case ID, flag
+			Map<String, String> predictedFlagMap = new HashMap<String, String>();
+			Iterator<String> scoreMapIter = anomalyScoreMap.keySet().iterator();
+			while(scoreMapIter.hasNext()) {
+				String key = scoreMapIter.next(); // key = case id
+				float value = anomalyScoreMap.get(key);
+				String flag = "";
+				if(value >= anomalyThreshold) {
+					flag = "Anomaly";
+				}else {
+					flag = "Normal";
+				}
+				
+				if(anomalyThreshold < 0.011) {
+					//System.out.println(key + ", " + flag);
+				}
+				predictedFlagMap.put(key, flag);
+			}
+			
+			// compare
+			scoreMapIter = anomalyScoreMap.keySet().iterator();
+			int truePositive = 0;
+			int trueNegative = 0;
+			int falsePositive = 0;
+			int falseNegative = 0;
+			
+			while(scoreMapIter.hasNext()) {
+				String caseID = scoreMapIter.next();
+				
+				String actualFlag = actualFlagMap.get(caseID);
+				String predictedFlag = predictedFlagMap.get(caseID);
+				
+				if(actualFlag.equals("Anomaly") && predictedFlag.equals("Anomaly")) {
+					truePositive++;
+				}else if(actualFlag.equals("Normal") && predictedFlag.equals("Normal")) {
+					trueNegative++;
+					//System.out.println(caseID);
+				}else if(actualFlag.equals("Normal") && predictedFlag.equals("Anomaly")) {
+					falsePositive++;
+				}else if(actualFlag.equals("Anomaly") && predictedFlag.equals("Normal")) {
+					falseNegative++;
+				}else {
+					
+				}
+			}
+
+			// get evaluation measures (e.g., t.p., t.n., ...)
+			float precision = (float) (truePositive*1.0 / (truePositive + falsePositive));
+			float recall = (float)(truePositive*1.0 / (truePositive + falseNegative));
+			float accuracy = (float)(((truePositive + trueNegative)*1.0) / (truePositive + trueNegative + falsePositive + falseNegative));
+			
+			System.out.println(
+					anomalyThreshold 
+					+ ", " + truePositive 
+					+ ", " + trueNegative 
+					+ ", " + falsePositive 
+					+ ", " + falseNegative 
+					+ ", " + precision
+					+ ", " + recall
+					+ ", " + accuracy);
+			
+			// next loop
+			anomalyThreshold = (float) (anomalyThreshold + 0.01);
 		}
-		*/
-		/*
-		int sum = a + b;
-		float alpha = (float) ((a * 1.0) / (sum));
-		float beta = (float) ((b * 1.0) / (sum));
-		parameters.setAlpha(alpha);
-		parameters.setBeta(beta);
-		
-		System.out.println("a: " + a + ", b: " + b + ", alpha: " + alpha + ", beta: " + beta);
-		*/
-		/*
-		this.calculateAnomalyScore(caseIDList, controlFlowScoreMap, resourceScoreMap, parameters);
-		
-		sortedAnomalyScoreMap = sortByValue(anomalyScoreMap);
-		Iterator<String> anomalyIter = sortedAnomalyScoreMap.keySet().iterator();
-		while(anomalyIter.hasNext()) {
-			String key = anomalyIter.next();
-			//System.out.println("key, value: " + key + ", " + anomalyScoreMap.get(key).getOverallScore());
-		}
-		*/
 	}
 	public Map<String, Float> sortByValue(Map<String, Float> unsortMap){
 		// 1. Convert Map to List of Map
