@@ -62,7 +62,7 @@ public class MutatorModel {
 		System.out.println("Type: " + type);
 		int caseSize = log.size();
 		
-		String[] types = {"Control-flow", "Time", "Resource"};
+		String[] types = {"Control-flow", "Time", "Resource", "Add"};
 		float[] dps = {(float)(0.1*1.0), (float)(0.2*1.0), (float)(0.3*1.0)};
 		
 		for(int a = 0; a < types.length; a++) {
@@ -263,7 +263,7 @@ public class MutatorModel {
 							start_date = XLogFunctions.getTime(thisTrace.get(randomPosition));
 							
 							// get random second from 900 ~ 2700
-							RandomInteger randomInteger = new RandomInteger(1,900,2700);
+							RandomInteger randomInteger = new RandomInteger(1,7200,10800);
 							int randomSecond = randomInteger.getRandomNumber()[0];
 							// add the random second to the start_date (original)
 							Calendar calendar1 = Calendar.getInstance();
@@ -272,7 +272,7 @@ public class MutatorModel {
 							
 							complete_date = calendar1.getTime();
 							// complete_date = add some random time to the start_date (updated)
-							randomInteger = new RandomInteger(1,900,2700);
+							randomInteger = new RandomInteger(1,7200,10800);
 							randomSecond = randomInteger.getRandomNumber()[0];
 							Calendar calendar2 = Calendar.getInstance();
 							calendar2.setTime(complete_date);

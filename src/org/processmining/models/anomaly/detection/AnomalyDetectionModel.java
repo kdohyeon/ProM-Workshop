@@ -32,7 +32,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 	
 	Map<String, Float> cfMap = new HashMap<String, Float>();
 	Map<String, Float> tMap = new HashMap<String, Float>();
-	Map<String, Float> rActResMap = new HashMap<String, Float>();
+	Map<String, Float> rMap = new HashMap<String, Float>();
 	Map<String, Float> anomalyScoreMap = new HashMap<String, Float>(); // un-normalized map
 	
 	//private Map<String, AnomalyScore> anomalyScoreMap;
@@ -134,28 +134,50 @@ public class AnomalyDetectionModel implements HTMLToString{
 		 * */
 		System.out.println(" ### Anomaly Score : Resource, Activity-Resource ### ");
 		ResourceActivityRuleMatchingModel rActResRuleMatching = new ResourceActivityRuleMatchingModel(trainingActModel, testActModel, parameters);
+		Map<String, Float> rActMap = new HashMap<String, Float>();
+		rActMap = rActResRuleMatching.getResultMap();
 		
-		rActResMap = rActResRuleMatching.getResultMap();
+		/*
+		 * Resource, Relation
+		 * */
+		System.out.println(" ### Anomaly Score : Resource, Relation-Resource ### ");
+		ResourceRelationRuleMatchingModel rRelRuleMatching = new ResourceRelationRuleMatchingModel(trainingRelModel, testRelModel, parameters);
+		Map<String, Float> rRelMap = new HashMap<String, Float>();
+		rRelMap = rRelRuleMatching.getResultMap();
+		
+		/*
+		 * Resource, Overall
+		 * */
+		float weight5, weight6;
+		weight5 = (float) 0.5; // equal weight
+		weight6 = (float) 0.5; // equal weight
+		for(int i = 0; i < caseIDList.size(); i++) {
+			String thisCase = caseIDList.get(i);
+			float act = rActMap.get(thisCase);
+			float rel = rRelMap.get(thisCase);
+			float result = act*weight5 + rel*weight6;
+			rMap.put(thisCase, result);
+		}
 		
 		/*
 		 * Overall Anomaly Score
 		 * */
 		
-		float weight5, weight6, weight7;
+		float weight7, weight8, weight9;
 		int cfWeight = parameters.getControlFlow();
 		int tWeight = parameters.getTime();
 		int rWeight = parameters.getResource();
 		int sum = cfWeight + tWeight + rWeight;
-		weight5 = (float)(cfWeight*1.0/sum);
-		weight6 = (float)(tWeight*1.0/sum);
-		weight7 = (float)(rWeight*1.0/sum);
+		weight7 = (float)(cfWeight*1.0/sum);
+		weight8 = (float)(tWeight*1.0/sum);
+		weight9 = (float)(rWeight*1.0/sum);
 		
 		for(int i = 0; i < caseIDList.size(); i++) {
 			String thisCase = caseIDList.get(i);
 			float cf = cfMap.get(thisCase);
 			float t = tMap.get(thisCase);
-			float r = rActResMap.get(thisCase);
-			float result = cf*weight5 + t*weight6 + r*weight7;
+			float r = rMap.get(thisCase);
+			float result = cf*weight7 + t*weight8 + r*weight9;
 			anomalyScoreMap.put(thisCase, result);
 		}
 		
@@ -486,7 +508,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 			buffer.append("<td>" + anomalyScoreMap.get(key) + "</td>");			
 			buffer.append("<td>" + cfMap.get(key) + "</td>");
 			buffer.append("<td>" + tMap.get(key) + "</td>");
-			buffer.append("<td>" + rActResMap.get(key) + "</td>");
+			buffer.append("<td>" + rMap.get(key) + "</td>");
 			//buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getOverallScore() + "</td>");
 			//buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getCfScore().getControlFlowScore() + "</td>");
 			//buffer.append("<td>" + sortedAnomalyScoreMap.get(key).getrScore().getResourceScore() + "</td>");			

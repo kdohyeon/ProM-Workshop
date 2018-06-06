@@ -336,7 +336,33 @@ public class AnomalyProfileModel implements HTMLToString{
 			buffer.append("<td>" + rule.getMinConf() + "</td>");
 			buffer.append("</tr>");
 		}
+		buffer.append("</table>");
 		
+		/*
+		 * Control-flow, Relation
+		 * */
+		buffer.append("<p> ### Resource, Relation ### </p>");
+		buffer.append("<table>");
+		buffer.append("<tr>");
+		buffer.append("<th> From Resource </th>");
+		buffer.append("<th> To Resource </th>");
+		buffer.append("<th> Relation Type </th>");
+		buffer.append("<th> Frequency </th>");
+		buffer.append("<th> Support </th>");
+		buffer.append("<th> Confidence </th>");
+		buffer.append("</tr>");
+		rRuleSize = relModel.getRelationResourceMatrix().getRelationMatrixListSize();
+		for(int i = 0; i < rRuleSize; i++) {
+			buffer.append("<tr>");
+			buffer.append("<td>" + relModel.getRelationResourceMatrix().getAntecedent(i) + "</td>");
+			buffer.append("<td>" + relModel.getRelationResourceMatrix().getConsequent(i) + "</td>");
+			buffer.append("<td>" + relModel.getRelationResourceMatrix().getRelationType(i) + "</td>");
+			buffer.append("<td>" + relModel.getRelationResourceMatrix().getFrequency(i) + "</td>");
+			buffer.append("<td>" + relModel.getRelationResourceMatrix().getSupport(i) + "</td>");
+			buffer.append("<td>" + relModel.getRelationResourceMatrix().getConfidence(i) + "</td>");
+			buffer.append("</tr>");
+		}
+		buffer.append("</table>");
 		
 		/*
 		 * VISUALIZE RESOURCE PERSPECTIVE RULES 

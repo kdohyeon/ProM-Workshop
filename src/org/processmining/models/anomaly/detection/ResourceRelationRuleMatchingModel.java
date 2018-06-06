@@ -8,13 +8,13 @@ import org.processmining.data.relation.RelationMatrix;
 import org.processmining.models.relation.RelationModel;
 import org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParameters;
 
-public class ControlFlowRelationRuleMatchingModel extends AbstractRuleMatchingModel{
+public class ResourceRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 	private RelationModel trainingRelModel;
 	private RelationModel testRelModel;
 	private AnomalyDetectionMiningParameters parameters;
 	private Map<String, Float> resultMap;
 	
-	public ControlFlowRelationRuleMatchingModel(RelationModel trainingRelModel, RelationModel testRelModel, AnomalyDetectionMiningParameters parameters) {
+	public ResourceRelationRuleMatchingModel(RelationModel trainingRelModel, RelationModel testRelModel, AnomalyDetectionMiningParameters parameters) {
 		/*
 		 * Parameters
 		 * */
@@ -26,10 +26,10 @@ public class ControlFlowRelationRuleMatchingModel extends AbstractRuleMatchingMo
 		/*
 		 * Activity
 		 * */
-		// get the size of cf act rel rule size
-		RelationMatrix actRelationMatrix = new RelationMatrix();
-		actRelationMatrix = trainingRelModel.getRelationActivityMatrix();
-		int cfRelRuleSize = actRelationMatrix.getRelationMatrixListSize();
+		// get the size of r act rel rule size
+		RelationMatrix rRelationMatrix = new RelationMatrix();
+		rRelationMatrix = trainingRelModel.getRelationResourceMatrix();
+		int rRelRuleSize = rRelationMatrix.getRelationMatrixListSize();
 				
 		// get the case id list
 		ArrayList<String> caseIDList = new ArrayList<String>();
@@ -37,15 +37,15 @@ public class ControlFlowRelationRuleMatchingModel extends AbstractRuleMatchingMo
 		
 		// get the unique relation list of profile
 		ArrayList<String> trainingRelationSet = new ArrayList<String>();
-		for(int i = 0; i < cfRelRuleSize; i++) {
-			//trainingRelationSet.add(trainingRelModel.getRelation(i).getActivity());
-			trainingRelationSet.add(actRelationMatrix.getPair(i));
+		for(int i = 0; i < rRelRuleSize; i++) {
+			//trainingRelationSet.add(trainingRelModel.getRelation(i).getResource());
+			trainingRelationSet.add(rRelationMatrix.getPair(i));
 		}
 		
 		// get the unique relation list of test
 		ArrayList<String> testRelationSet = new ArrayList<String>();
 		for(int i = 0; i < testRelModel.getRelationCardinality(); i++) {
-			testRelationSet.add(testRelModel.getRelation(i).getActivity());
+			testRelationSet.add(testRelModel.getRelation(i).getResource());
 		}
 		
 		// for each case
@@ -55,7 +55,7 @@ public class ControlFlowRelationRuleMatchingModel extends AbstractRuleMatchingMo
 			ArrayList<String> temp = new ArrayList<String>();
 			for(int j = 0; j < testRelModel.getRelationCardinality(); j++) {
 				if(thisCase.equals(testRelModel.getCaseID(j))) {
-					temp.add(testRelModel.getRelation(j).getActivity());
+					temp.add(testRelModel.getRelation(j).getResource());
 				}
 			}
 			
