@@ -18,6 +18,7 @@ import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.annotations.Plugin;
 import org.processmining.framework.plugin.annotations.PluginVariant;
 import org.processmining.models.activity.ActivityModel;
+import org.processmining.models.activityResource.ActivityResourceModel;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;
 import org.processmining.models.relation.RelationModel;
 
@@ -130,13 +131,14 @@ public class AnomalyProfileMiningPlugin {
 		actModel.setMinConf(parameters.getMinConfidence());
 		actModel.calculateActivityRule();
 		
-		
+		/*
 		for(int i = 0; i < actModel.getActivityRule().getRuleSize(); i++) {
 			System.out.println(
 					actModel.getActivityRule().getRuleList().get(i).getAct()
 					+ ", " + actModel.getActivityRule().getRuleList().get(i).getMinSupp()
 					+ ", " + actModel.getActivityRule().getRuleList().get(i).getMinConf());
 		}
+		*/
 		
 		// Relation rules
 		System.out.println("...Control-flow, Relation Rules...");
@@ -144,36 +146,44 @@ public class AnomalyProfileMiningPlugin {
 		RelationModel relModel = new RelationModel(actModel);
 		relModel.setMinSupp(parameters.getMinSupport());
 		relModel.setMinConf(parameters.getMinConfidence());
+		System.out.println("...Calculate Activity Relation Matrix...");
 		relModel.calculateRelationActivityMatrix();
+		System.out.println("...Calculate Resource Relation Matrix...");
 		relModel.calculateRelationResourceMatrix();
 		RelationMatrix activityRelMatrix = new RelationMatrix();
 		System.out.println("...Activity Relation Matrix...");
 		activityRelMatrix = relModel.getRelationActivityMatrix();
 		
 		
-		activityRelMatrix.printRelationMatrix();
+		//activityRelMatrix.printRelationMatrix();
 		
+		// Activity-Resource frequency
+		System.out.println("...Activity-Resource...");
+		ActivityResourceModel actResModel = new ActivityResourceModel(log, parameters);
 		
 		/*
 		 * Get time rules
 		 * */
 		// get anomaly profile model
-		AnomalyProfileModel anomalyProfileModel = new AnomalyProfileModel(actModel, relModel);
+		AnomalyProfileModel anomalyProfileModel = new AnomalyProfileModel(actModel, relModel, actResModel);
 				
 		// Activity time range
 		System.out.println("Time, Activity Time Ranges");
 		anomalyProfileModel.getProcessingModel().getProcessingList_Act();
+		/*
 		for(int i = 0; i < anomalyProfileModel.getProcessingModel().getProcessingList_Act().size(); i++) {
 			System.out.println(
 					anomalyProfileModel.getProcessingModel().getProcessingList_Act().get(i).getActivityID()
 					+ ": " + anomalyProfileModel.getProcessingModel().getProcessingList_Act().get(i).getAvg()
 					+ " +/- " + anomalyProfileModel.getProcessingModel().getProcessingList_Act().get(i).getStdev());
 		}
+		*/
 		
 		// Relation time range
 		System.out.println("Time, Relation Time Ranges - Transition");
 		ArrayList<Transition> transitionTime = new ArrayList<Transition>();
 		transitionTime = anomalyProfileModel.getTransitionModel().getTransitionList_Act();
+		/*
 		for(int i = 0; i < transitionTime.size(); i++) {
 			System.out.println(
 					transitionTime.get(i).getFromActivityID() 
@@ -181,10 +191,12 @@ public class AnomalyProfileMiningPlugin {
 					+ " " + transitionTime.get(i).getToActivityID()
 					+ ": " + transitionTime.get(i).getAvg() + " +/- " + transitionTime.get(i).getStdev());
 		}
+		*/
 		
 		System.out.println("Time, Relation Time Ranges - Overlap");
 		ArrayList<Overlap> overlapTime = new ArrayList<Overlap>();
 		overlapTime = anomalyProfileModel.getOverlapModel().getOverlapList_Act();
+		/*
 		for(int i = 0; i < overlapTime.size(); i++) {
 			System.out.println(
 					overlapTime.get(i).getFromActivityID() 
@@ -192,10 +204,12 @@ public class AnomalyProfileMiningPlugin {
 					+ " " + overlapTime.get(i).getToActivityID()
 					+ ": " + overlapTime.get(i).getAvg() + " +/- " + overlapTime.get(i).getStdev());
 		}
+		*/
 		
 		System.out.println("Time, Relation Time Ranges - TrueX");
 		ArrayList<TrueX> trueXTime = new ArrayList<TrueX>();
 		trueXTime = anomalyProfileModel.getTrueXModel().getTrueXList_Act();
+		/*
 		for(int i = 0; i < trueXTime.size(); i++) {
 			System.out.println(
 					trueXTime.get(i).getFromActivityID() 
@@ -203,10 +217,12 @@ public class AnomalyProfileMiningPlugin {
 					+ " " + trueXTime.get(i).getToActivityID()
 					+ ": " + trueXTime.get(i).getAvg() + " +/- " + trueXTime.get(i).getStdev());
 		}
+		*/
 		
 		System.out.println("Time, Relation Time Ranges - TrueY");
 		ArrayList<TrueY> trueYTime = new ArrayList<TrueY>();
 		trueYTime = anomalyProfileModel.getTrueYModel().getTrueYList_Act();
+		/*
 		for(int i = 0; i < trueYTime.size(); i++) {
 			System.out.println(
 					trueYTime.get(i).getFromActivityID() 
@@ -214,17 +230,16 @@ public class AnomalyProfileMiningPlugin {
 					+ " " + trueYTime.get(i).getToActivityID()
 					+ ": " + trueYTime.get(i).getAvg() + " +/- " + trueYTime.get(i).getStdev());
 		}
+		*/
 		
 		/*
 		 * Get resource rules
 		 * */
 		System.out.println("Resource, Activity-Resource Rules");
-		for(int i = 0; i < actModel.getActResRuleModel().getRuleSize(); i++) {
-			System.out.println(
-					actModel.getActResRuleModel().getRuleList().get(i).getAct()
-					+ ", " + actModel.getActResRuleModel().getRuleList().get(i).getMinSupp()
-					+ ", " + actModel.getActResRuleModel().getRuleList().get(i).getMinConf());
-		}
+		System.out.println("...Activity-Side Rules...");
+		actResModel.printActivitySideRules();
+		System.out.println("...Resource-Side Rules...");
+		actResModel.printResourceSideRules();
 		
 		/* 
 		 * Advance the progress bar.

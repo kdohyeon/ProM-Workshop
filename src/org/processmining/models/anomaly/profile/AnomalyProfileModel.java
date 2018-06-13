@@ -5,11 +5,13 @@ import java.text.ParseException;
 import org.processmining.data.rules.ActivityResourceRule;
 import org.processmining.framework.util.HTMLToString;
 import org.processmining.models.activity.ActivityModel;
+import org.processmining.models.activityResource.ActivityResourceModel;
 import org.processmining.models.relation.RelationModel;
 
 public class AnomalyProfileModel implements HTMLToString{
 	private ActivityModel actModel = null;
 	private RelationModel relModel = null;
+	private ActivityResourceModel actResModel = null;
 	
 	ProcessingProfileModel processingModel;
 	RelationProfileModel performanceModel;
@@ -18,9 +20,10 @@ public class AnomalyProfileModel implements HTMLToString{
 	TrueXProfileModel trueXModel;
 	TrueYProfileModel trueYModel;
 	
-	public AnomalyProfileModel(ActivityModel actModel, RelationModel relModel) throws ParseException {
+	public AnomalyProfileModel(ActivityModel actModel, RelationModel relModel, ActivityResourceModel actResModel) throws ParseException {
 		this.setActModel(actModel);
 		this.setRelModel(relModel);
+		this.setActResModel(actResModel);
 		
 		System.out.println("...Processing Profile...");
 		ProcessingProfileModel processingModel = new ProcessingProfileModel(actModel);
@@ -277,12 +280,35 @@ public class AnomalyProfileModel implements HTMLToString{
 		/*
 		 * Rules
 		 * */
-		buffer.append("<h3> Rules </h3>");
+		buffer.append("<h1> Rules </h1>");
 		
 		/*
 		 * Control-flow, Activity 
 		 * */
-		actModel.getActRuleModel().getRuleList();
+		buffer.append("<p> ### Control-flow, Activity ### </p>");
+		buffer.append("<table>");
+		buffer.append("<tr>");
+		buffer.append("<th> No. </th>");
+		buffer.append("<th> Activity </th>");
+		buffer.append("<th> Frequency </th>");
+		buffer.append("<th> Support </th>");
+		buffer.append("<th> Confidence </th>");
+		buffer.append("</tr>");
+		actModel.getActivityRule().getRuleList();
+		
+		int cfActRuleSize = actModel.getActivityRule().getRuleSize();
+		for(int i = 0; i < cfActRuleSize; i++) {
+			int idx = i+1;
+			buffer.append("<tr>");
+			buffer.append("<td>" + idx + "</td>");
+			buffer.append("<td>" + actModel.getActivityRule().getRuleList().get(i).getAct() + "</td>");
+			buffer.append("<td>" + actModel.getActivityRule().getRuleList().get(i).getFreq() + "</td>");
+			buffer.append("<td>" + actModel.getActivityRule().getRuleList().get(i).getMinSupp() + "</td>");
+			buffer.append("<td>" + actModel.getActivityRule().getRuleList().get(i).getMinConf() + "</td>");
+			buffer.append("</tr>");
+		}
+		
+		buffer.append("</table>");
 		
 		/*
 		 * Control-flow, Relation
@@ -290,6 +316,7 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("<p> ### Control-flow, Relation ### </p>");
 		buffer.append("<table>");
 		buffer.append("<tr>");
+		buffer.append("<th> No. </th>");
 		buffer.append("<th> From Activity </th>");
 		buffer.append("<th> To Activity </th>");
 		buffer.append("<th> Relation Type </th>");
@@ -299,7 +326,9 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("</tr>");
 		int cfRuleSize = relModel.getRelationActivityMatrix().getRelationMatrixListSize();
 		for(int i = 0; i < cfRuleSize; i++) {
+			int idx = i+1;
 			buffer.append("<tr>");
+			buffer.append("<td>" + idx + "</td>");
 			buffer.append("<td>" + relModel.getRelationActivityMatrix().getAntecedent(i) + "</td>");
 			buffer.append("<td>" + relModel.getRelationActivityMatrix().getConsequent(i) + "</td>");
 			buffer.append("<td>" + relModel.getRelationActivityMatrix().getRelationType(i) + "</td>");
@@ -316,6 +345,7 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("<p> ### Resource ### </p>");
 		buffer.append("<table>");
 		buffer.append("<tr>");
+		buffer.append("<th> No. </th>");
 		buffer.append("<th> Activity </th>");
 		buffer.append("<th> Resource </th>");
 		buffer.append("<th> Frequency </th>");
@@ -328,7 +358,9 @@ public class AnomalyProfileModel implements HTMLToString{
 			String[] parseLine = rule.getAct().split("_");
 			String act = parseLine[0];
 			String res = parseLine[1];
+			int idx = i+1;
 			buffer.append("<tr>");
+			buffer.append("<td>" + idx + "</td>");
 			buffer.append("<td>" + act + "</td>");
 			buffer.append("<td>" + res + "</td>");
 			buffer.append("<td>" + rule.getFreq() + "</td>");
@@ -338,12 +370,15 @@ public class AnomalyProfileModel implements HTMLToString{
 		}
 		buffer.append("</table>");
 		
+		
 		/*
-		 * Control-flow, Relation
+		 * Resource, Relation
 		 * */
+		/*
 		buffer.append("<p> ### Resource, Relation ### </p>");
 		buffer.append("<table>");
 		buffer.append("<tr>");
+		buffer.append("<th> No. </th>");
 		buffer.append("<th> From Resource </th>");
 		buffer.append("<th> To Resource </th>");
 		buffer.append("<th> Relation Type </th>");
@@ -353,7 +388,9 @@ public class AnomalyProfileModel implements HTMLToString{
 		buffer.append("</tr>");
 		rRuleSize = relModel.getRelationResourceMatrix().getRelationMatrixListSize();
 		for(int i = 0; i < rRuleSize; i++) {
+			int idx = i+1;
 			buffer.append("<tr>");
+			buffer.append("<td>" + idx + "</td>");
 			buffer.append("<td>" + relModel.getRelationResourceMatrix().getAntecedent(i) + "</td>");
 			buffer.append("<td>" + relModel.getRelationResourceMatrix().getConsequent(i) + "</td>");
 			buffer.append("<td>" + relModel.getRelationResourceMatrix().getRelationType(i) + "</td>");
@@ -363,7 +400,7 @@ public class AnomalyProfileModel implements HTMLToString{
 			buffer.append("</tr>");
 		}
 		buffer.append("</table>");
-		
+		*/
 		/*
 		 * VISUALIZE RESOURCE PERSPECTIVE RULES 
 		 * */
@@ -461,5 +498,15 @@ public class AnomalyProfileModel implements HTMLToString{
 
 	public void setPerformanceModel(RelationProfileModel performanceModel) {
 		this.performanceModel = performanceModel;
+	}
+
+
+	public ActivityResourceModel getActResModel() {
+		return actResModel;
+	}
+
+
+	public void setActResModel(ActivityResourceModel actResModel) {
+		this.actResModel = actResModel;
 	}
 }

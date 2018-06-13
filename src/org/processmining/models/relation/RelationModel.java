@@ -38,6 +38,7 @@ public class RelationModel {
 		setMinSupp(0);
 		setMinConf(0);
 		
+		System.out.println("...Creating Relation Model By CaseID...");
 		createRelationModelByCaseID(caseID);
 	}
 		
@@ -54,6 +55,7 @@ public class RelationModel {
 		setMinSupp(0);
 		setMinConf(0);
 		
+		System.out.println("...Creating Relation Model...");
 		createRelationModel();
 	}
 	
@@ -181,10 +183,15 @@ public class RelationModel {
 		return result;
 	}
 	
+	
+	/**
+	 * RESOURCE
+	 * */
 	public RelationMatrix calculateRelationResourceMatrix() {
 		Set<String> antecedentSet = new HashSet<String>();
 		Set<String> consequentSet = new HashSet<String>();
 		Set<String> relationSet = new HashSet<String>();
+		
 		for(int i = 0; i < relationArrayList.size(); i++) {
 			antecedentSet.add(relationArrayList.get(i).getAntecedent().getResourceID());
 			consequentSet.add(relationArrayList.get(i).getConsequent().getResourceID());
@@ -199,6 +206,11 @@ public class RelationModel {
 		relationList.addAll(relationSet);
 		
 		int caseFrequency = actModel.getUniqueCaseID().size();
+		
+		System.out.println("Relation ArrayList Size: " + relationArrayList.size());
+		System.out.println("Antecedent List Size: " + antecedentList.size());
+		System.out.println("Consequent List Size: " + consequentList.size());
+		System.out.println("Relation List Size: " + relationList.size());
 		
 		for(int i = 0; i < antecedentList.size(); i++) {
 			String currAntecedent = antecedentList.get(i);
@@ -243,6 +255,9 @@ public class RelationModel {
 		return relResourceMatrix;
 	}
 	
+	/**
+	 * ACTIVITY
+	 * */
 	public RelationMatrix calculateRelationActivityMatrix() {
 		Set<String> antecedentSet = new HashSet<String>();
 		Set<String> consequentSet = new HashSet<String>();
@@ -260,6 +275,11 @@ public class RelationModel {
 		consequentList.addAll(consequentSet);
 		relationList.addAll(relationSet);
 		
+		System.out.println("Relation ArrayList Size: " + relationArrayList.size());
+		System.out.println("Antecedent List Size: " + antecedentList.size());
+		System.out.println("Consequent List Size: " + consequentList.size());
+		System.out.println("Relation List Size: " + relationList.size());
+		
 		int caseFrequency = actModel.getUniqueCaseID().size();
 		
 		for(int i = 0; i < antecedentList.size(); i++) {
@@ -270,6 +290,8 @@ public class RelationModel {
 				
 				for(int k = 0; k < relationList.size(); k++) {
 					String currRelation = relationList.get(k);
+					
+					//System.out.println(currAntecedent + " " + currRelation + " " + currConsequent);
 					
 					//int cnt = 0;
 					Map<String, Integer> checkCaseSet = new HashMap<String, Integer>();

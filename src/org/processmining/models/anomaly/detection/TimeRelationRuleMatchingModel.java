@@ -33,34 +33,44 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 		resultMap = new HashMap<String, Float>();
 		
 		// get case id list
+		System.out.println("... Getting Case ID List...");
 		ArrayList<String> caseIDList = new ArrayList<String>();
 		caseIDList = testRelModel.getCaseIDList();
 		
 		// for each relation
+		System.out.println("... Getting Relation List...");
 		ArrayList<String> testRelSet = new ArrayList<String>();
 		testRelSet.addAll(testRelModel.getUniqueRelation());
 		
 		// transition performance measure
+		System.out.println("... Getting Transition List...");
 		TransitionProfileModel transitionModel = profileModel.getTransitionModel();
 		ArrayList<Transition> transition = new ArrayList<Transition>();
 		transition = transitionModel.getTransitionList_Act();
 		
 		// overlap performance measure
+		System.out.println("... Getting Overlap List...");
 		OverlapProfileModel overlapModel = profileModel.getOverlapModel();
 		ArrayList<Overlap> overlap = new ArrayList<Overlap>();
 		overlap = overlapModel.getOverlapList_Act();
 		
 		// true x performance measure
+		System.out.println("... Getting True X List...");
 		TrueXProfileModel trueXModel = profileModel.getTrueXModel();
 		ArrayList<TrueX> trueX = new ArrayList<TrueX>();
 		trueX = trueXModel.getTrueXList_Act();
 		
 		// true y performance measure
+		System.out.println("... Getting True Y List...");
 		TrueYProfileModel trueYModel = profileModel.getTrueYModel();
 		ArrayList<TrueY> trueY = new ArrayList<TrueY>();
 		trueY = trueYModel.getTrueYList_Act();
 		
 		for(int i = 0; i < caseIDList.size(); i++) {
+			
+			if(i % 10 == 0) {
+				//System.out.println(caseIDList.get(i));
+			}
 			
 			String thisCase = caseIDList.get(i);
 			//System.out.println("Case ID: " + thisCase);

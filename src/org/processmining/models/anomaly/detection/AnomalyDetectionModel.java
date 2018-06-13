@@ -18,6 +18,7 @@ import org.deckfour.xes.model.XLog;
 import org.processmining.data.xes.PathDefinition;
 import org.processmining.framework.util.HTMLToString;
 import org.processmining.models.activity.ActivityModel;
+import org.processmining.models.activityResource.ActivityResourceModel;
 import org.processmining.models.anomaly.profile.AnomalyProfileModel;
 import org.processmining.models.relation.RelationModel;
 import org.processmining.plugins.anomaly.detection.AnomalyDetectionMiningParameters;
@@ -66,6 +67,9 @@ public class AnomalyDetectionModel implements HTMLToString{
 		// Training data
 		ActivityModel trainingActModel = profileModel.getActModel();
 		RelationModel trainingRelModel = profileModel.getRelModel();
+		
+		// Anomaly profile model
+		ActivityResourceModel activityResourceModel = profileModel.getActResModel();
 		
 		/*
 		 * Control-Flow, Activity
@@ -146,6 +150,14 @@ public class AnomalyDetectionModel implements HTMLToString{
 		rRelMap = rRelRuleMatching.getResultMap();
 		
 		/*
+		 * Resource, Activity-Resource_Refined
+		 * */
+		System.out.println(" ### Anomaly Score: Resource, Activity-Resource_Refined ### ");
+		ResourceActivityRuleMatchingModelRefined rActRuleMatching = new ResourceActivityRuleMatchingModelRefined(log, activityResourceModel); 
+		Map<String, Float> resActMap = new HashMap<String, Float>();
+		resActMap = rActRuleMatching.getrMap();
+		
+		/*
 		 * Resource, Overall
 		 * */
 		float weight5, weight6;
@@ -156,6 +168,8 @@ public class AnomalyDetectionModel implements HTMLToString{
 			float act = rActMap.get(thisCase);
 			float rel = rRelMap.get(thisCase);
 			float result = act*weight5 + rel*weight6;
+			
+			result = resActMap.get(thisCase);
 			rMap.put(thisCase, result);
 		}
 		
@@ -216,17 +230,12 @@ public class AnomalyDetectionModel implements HTMLToString{
 			//System.out.println("key, value: " + key + ", " + sortedAnomalyScoreMap.get(key));
 		}
 		
- 
-		System.out.println("... Calculate evaluation measures...");
-		// get training anomaly flag
-		/*
-		Iterator<String> it = log.get(0).get(0).getAttributes().keySet().iterator();
-		while(it.hasNext()) {
-			String key = it.next();
-			System.out.println(key + ", " + log.get(0).get(0).getAttributes().get(key).toString());
-		}
-		*/
+
+		/**
+		 * Evaluation Measures
+		 * */
 		
+		System.out.println("... Calculate evaluation measures...");
 		//System.out.println("Actual Flag");
 		Map<String, String> actualFlagMap = new HashMap<String, String>();
 		for(int i = 0; i < log.size(); i++) {
@@ -305,6 +314,8 @@ public class AnomalyDetectionModel implements HTMLToString{
 			// next loop
 			anomalyThreshold = (float) (anomalyThreshold + 0.01);
 		}
+		
+	
 	}
 	public Map<String, Float> sortByValue(Map<String, Float> unsortMap){
 		// 1. Convert Map to List of Map

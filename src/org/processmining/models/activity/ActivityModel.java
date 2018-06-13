@@ -24,7 +24,7 @@ public class ActivityModel {
 	private ArrayList<Activity> activityArrayList;
 	private ActivityRuleModel actRuleModel;
 	private ActivityResourceRuleModel actResRuleModel;
-	
+		
 	private float minSupp;
 	private float minConf;
 	
@@ -95,7 +95,7 @@ public class ActivityModel {
 				float support = (float) (checkCaseSet.size() * 1.0 / caseFrequency);
 				float confidence = (float) (checkCaseSet.size() * 1.0 / this.getCaseFrequencyOfActivity(thisActivity));
 				if(support > minSupp && confidence > minConf) {
-					ActivityRule rule = new ActivityRule(thisActivity, support, confidence);
+					ActivityRule rule = new ActivityRule(thisActivity, checkCaseSet.size(), support, confidence);
 					actRuleModel.addActivityRule(rule);
 				}
 			}
@@ -103,6 +103,7 @@ public class ActivityModel {
 		
 		for(int i = 0; i < activityResourceList.size(); i++) {
 			String thisActivityResource = activityResourceList.get(i);
+			String thisActivity = thisActivityResource.split("_")[0];
 			String thisResource = thisActivityResource.split("_")[1];
 			
 			Map<String, Integer> checkCaseSet = new HashMap<String, Integer>();
@@ -136,7 +137,7 @@ public class ActivityModel {
 		// for each case
 		for(int i = 0; i < log.size(); i++) {
 			String caseID = log.get(i).getAttributes().get("concept:name").toString();
-			System.out.println(caseID);
+			//System.out.println(caseID);
 			
 			// for each event
 			for(int j = 0; j < log.get(i).size(); j++) {
@@ -154,7 +155,7 @@ public class ActivityModel {
 					boolean isFound = false;
 					while(!isFound) {
 						if(currJ == log.get(i).size()) {
-							System.out.println(eventID);
+							//System.out.println(eventID);
 							break;
 						}
 						
