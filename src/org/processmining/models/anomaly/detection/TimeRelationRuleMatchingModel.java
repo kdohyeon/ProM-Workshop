@@ -109,6 +109,10 @@ public class TimeRelationRuleMatchingModel extends AbstractRuleMatchingModel{
 							}
 							break;
 						}
+						
+						if(k == transition.size() - 1) {
+							System.out.println(thisCase + ", " + thisRelation);
+						}
 					}
 				}else if(relType.equals("m")) { // type 2
 					cnt++;
