@@ -21,7 +21,6 @@ import org.deckfour.xes.model.XTrace;
 import org.deckfour.xes.model.impl.XEventImpl;
 import org.deckfour.xes.model.impl.XLogImpl;
 import org.deckfour.xes.model.impl.XTraceImpl;
-import org.processmining.plugins.anomaly.mutator.MutatorParameters;
 import org.processmining.plugins.anomaly.resourceGenerator.ResourceGeneratorParameters;
 
 import analysis.basics.random.RandomFloat;
@@ -46,7 +45,7 @@ import analysis.basics.random.RandomInteger;
 public class ResourceGeneratorModel {
 	
 	private XLog log;
-	private MutatorParameters parameters;
+	private ResourceGeneratorParameters parameters;
 	
 	private XLog mutatedLog;
 	
@@ -66,11 +65,8 @@ public class ResourceGeneratorModel {
 		/*
 		 * Parameters
 		 * */
-		this.log = log;
-		float dp = parameters.getDeviationPercentageCase();
-		String type = parameters.getDeviationType();
-		System.out.println("Percentage: " + dp);
-		System.out.println("Type: " + type);
+		this.setLog(log);
+		this.setParameters(parameters);
 		int caseSize = log.size();
 		threshold = (float) 0.9;
 		maxAnomalyResource = 0;
@@ -318,41 +314,11 @@ public class ResourceGeneratorModel {
 			
 			cnt++;
 			
-			if(cnt == 2) {
+			if(cnt == parameters.getActivityNum()) {
 				index++;
 				cnt = 0;
 			}
 		}
-		
-		/*
-		activityResourceMap.put("Activity A", "Resource 1"); // 1
-		activityResourceMap.put("Activity B", "Resource 1"); // 2
-		activityResourceMap.put("Activity C", "Resource 1"); // 3
-		activityResourceMap.put("Activity D", "Resource 2"); // 4
-		activityResourceMap.put("Activity E", "Resource 2"); // 5
-		activityResourceMap.put("Activity F", "Resource 2"); // 6 
-		activityResourceMap.put("Activity G", "Resource 3"); // 7
-		activityResourceMap.put("Activity H", "Resource 3"); // 8
-		activityResourceMap.put("Activity I", "Resource 3"); // 9
-		activityResourceMap.put("Activity J", "Resource 4"); // 10
-		activityResourceMap.put("Activity K", "Resource 4"); // 11
-		activityResourceMap.put("Activity L", "Resource 4"); // 12
-		activityResourceMap.put("Activity M", "Resource 5"); // 13
-		activityResourceMap.put("Activity N", "Resource 5"); // 14
-		activityResourceMap.put("Activity O", "Resource 5"); // 15
-		activityResourceMap.put("Activity P", "Resource 6"); // 16
-		activityResourceMap.put("Activity Q", "Resource 6"); // 17
-		activityResourceMap.put("Activity R", "Resource 6"); // 18
-		activityResourceMap.put("Activity S", "Resource 7"); // 19
-		activityResourceMap.put("Activity T", "Resource 7"); // 20
-		activityResourceMap.put("Activity U", "Resource 7"); // 21
-		activityResourceMap.put("Activity V", "Resource 8"); // 22
-		activityResourceMap.put("Activity W", "Resource 8"); // 23
-		activityResourceMap.put("Activity X", "Resource 8"); // 24
-		activityResourceMap.put("Activity Y", "Resource 9"); // 25
-		activityResourceMap.put("Activity Z", "Resource 9"); // 26
-		*/
-		
 	}
 	
 	/*
@@ -367,11 +333,11 @@ public class ResourceGeneratorModel {
 		this.log = log;
 	}
 
-	public MutatorParameters getParameters() {
+	public ResourceGeneratorParameters getParameters() {
 		return parameters;
 	}
 
-	public void setParameters(MutatorParameters parameters) {
+	public void setParameters(ResourceGeneratorParameters parameters) {
 		this.parameters = parameters;
 	}
 

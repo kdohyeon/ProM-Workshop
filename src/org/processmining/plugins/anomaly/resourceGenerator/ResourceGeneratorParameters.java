@@ -2,40 +2,19 @@ package org.processmining.plugins.anomaly.resourceGenerator;
 
 public class ResourceGeneratorParameters {
 	
-	private float deviationPercentageCase;
-	private float deviationPercentageTrace;
-	private String deviationType;
+	private int activityNum;
 	
 	public ResourceGeneratorParameters() {
-		setDeviationPercentageCase((float)0.1);
-		setDeviationPercentageTrace((float)0.1);
-		setDeviationType("");
+		setActivityNum(1);
 	}
 
-	public float getDeviationPercentageCase() {
-		return deviationPercentageCase;
+	public int getActivityNum() {
+		return activityNum;
 	}
 
-	public void setDeviationPercentageCase(float deviationPercentage) {
-		this.deviationPercentageCase = deviationPercentage;
+	public void setActivityNum(int activityNum) {
+		this.activityNum = activityNum;
 	}
 	
-	public float getDeviationPercentageTrace() {
-		return deviationPercentageTrace;
-	}
-
-	public void setDeviationPercentageTrace(float deviationPercentage) {
-		this.deviationPercentageTrace = deviationPercentage;
-	}
-
-	public String getDeviationType() {
-		return deviationType;
-	}
-
-	/**
-	 * @param deviationType : "Add", "Remove", "Replace"
-	 * */
-	public void setDeviationType(String deviationType) {
-		this.deviationType = deviationType;
-	}
+	
 }

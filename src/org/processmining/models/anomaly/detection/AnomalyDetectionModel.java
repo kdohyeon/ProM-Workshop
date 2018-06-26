@@ -234,7 +234,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 		/**
 		 * Evaluation Measures
 		 * */
-		
+		/*
 		System.out.println("... Calculate evaluation measures...");
 		//System.out.println("Actual Flag");
 		Map<String, String> actualFlagMap = new HashMap<String, String>();
@@ -314,7 +314,7 @@ public class AnomalyDetectionModel implements HTMLToString{
 			// next loop
 			anomalyThreshold = (float) (anomalyThreshold + 0.01);
 		}
-		
+		*/
 	
 	}
 	public Map<String, Float> sortByValue(Map<String, Float> unsortMap){
