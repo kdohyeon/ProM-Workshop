@@ -68,7 +68,7 @@ public class ResourceGeneratorModel {
 		this.setLog(log);
 		this.setParameters(parameters);
 		int caseSize = log.size();
-		threshold = (float) 0.9;
+		threshold = (float) 1.0;
 		maxAnomalyResource = 0;
 		trainingOrTestPercentage = (float) 0.5;
 		activitySet = new HashSet<String>();

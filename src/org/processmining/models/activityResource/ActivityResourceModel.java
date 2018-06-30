@@ -21,6 +21,7 @@ public class ActivityResourceModel {
 	
 	/**
 	 * Constructor
+	 * 
 	 * @param parameters 
 	 * */
 	public ActivityResourceModel(XLog log, AnomalyProfileMiningParameters parameters) {
@@ -32,6 +33,9 @@ public class ActivityResourceModel {
 		resourceSideRules = new ArrayList<String>();
 		setMinSupp(parameters.getMinSupport());
 		setMinConf(parameters.getMinConfidence());
+		
+		//setMinConf((float) (0.95*1.0));
+		//System.out.println("Newly Set Min Conf = " + getMinConf());
 		
 		getActivityResourceModel();
 		computeActivitySideRules();
@@ -139,7 +143,7 @@ public class ActivityResourceModel {
 				//System.out.println("The input resource: " + resName + " is not available!");
 			}
 		}else {
-			//System.out.println("The input activity: " + actName + " is not available!");
+			// System.out.println("The input activity: " + actName + " is not available!");
 		}
 		return result;
 	}

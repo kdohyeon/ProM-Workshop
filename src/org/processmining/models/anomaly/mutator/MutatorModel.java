@@ -62,7 +62,7 @@ public class MutatorModel {
 		System.out.println("Type: " + type);
 		int caseSize = log.size();
 		
-		String[] types = {"Control-flow", "Time", "Resource", "Add"};
+		String[] types = {"Control-flow", "Time", "Resource", "Add", "All"};
 		float[] dps = {(float)(0.1*1.0), (float)(0.2*1.0), (float)(0.3*1.0)};
 		
 		for(int a = 0; a < types.length; a++) {
@@ -115,8 +115,6 @@ public class MutatorModel {
 					int traceSize = thisTrace.size();
 					String traceID = thisTrace.getAttributes().get("concept:name").toString();
 					
-					
-					
 					// if the random number is less than or equal to the parameter, then mutate !
 					// and create the new trace and copy the attributes of the old trace to the new one
 					//System.out.println(randomFloat.getRandomNumberElement(i) + ", " + dp);
@@ -139,6 +137,162 @@ public class MutatorModel {
 						
 						if(type.equals("All")) {
 							
+							RandomFloat randomFloat2 = new RandomFloat(1, 0, 1);
+							float randomNumber = randomFloat2.getRandomNumberElement(0);
+							if(0 <= randomNumber && randomNumber < 0.25 ) {
+								// Control-flow
+								String eventID = thisTrace.get(randomPosition).getAttributes().get("EventID").toString();
+								//System.out.println("Event ID: " + eventID);
+								// copy the old trace to the new event until the position
+								for(int j = 0; j < traceSize; j++) {
+									XEvent oldEvent = thisTrace.get(j);
+									String thisEventID = thisTrace.get(j).getAttributes().get("EventID").toString();
+									XEvent newEvent = new XEventImpl(XLogFunctions.copyAttMap(oldEvent.getAttributes()));
+									
+									if(eventID.equals(thisEventID)) {
+										String activity = "";
+										if(oldEvent.getAttributes().get("EventType").toString().equals("start")) {
+											activity = this.getRandomActivity();	
+										}else {
+											for(int k = 0; k < newTrace.size(); k++) {
+												String temp = newTrace.get(k).getAttributes().get("EventID").toString();
+												if(temp.equals(eventID)) {
+													activity = newTrace.get(k).getAttributes().get("concept:name").toString();
+													break;
+												}
+											}
+										}
+										
+										XLogFunctions.setName(newEvent, activity);
+									}
+									
+									newTrace.add(newEvent);
+								}
+							}else if(0.25 <= randomNumber && randomNumber < 0.50) {
+								// Resource
+								String eventID = thisTrace.get(randomPosition).getAttributes().get("EventID").toString();
+								//System.out.println("Event ID: " + eventID);
+								// copy the old trace to the new event until the position
+								for(int j = 0; j < traceSize; j++) {
+									XEvent oldEvent = thisTrace.get(j);
+									String thisEventID = thisTrace.get(j).getAttributes().get("EventID").toString();
+									XEvent newEvent = new XEventImpl(XLogFunctions.copyAttMap(oldEvent.getAttributes()));
+									
+									if(eventID.equals(thisEventID)) {
+										String resource = "";
+										if(oldEvent.getAttributes().get("EventType").toString().equals("start")) {
+											resource = this.getRandomResource();	
+										}else {
+											for(int k = 0; k < newTrace.size(); k++) {
+												String temp = newTrace.get(k).getAttributes().get("EventID").toString();
+												if(temp.equals(eventID)) {
+													resource = newTrace.get(k).getAttributes().get("org:resource").toString();
+													break;
+												}
+											}
+										}
+										
+										XLogFunctions.setResource(newEvent, resource);
+									}
+									
+									newTrace.add(newEvent);
+								}
+							}else if(0.50 <= randomNumber && randomNumber < 0.75) {
+								// Time
+								String eventID = thisTrace.get(randomPosition).getAttributes().get("EventID").toString();
+								//System.out.println("Event ID: " + eventID);
+								// copy the old trace to the new event until the position
+								for(int j = 0; j < traceSize; j++) {
+									XEvent oldEvent = thisTrace.get(j);
+									String thisEventID = thisTrace.get(j).getAttributes().get("EventID").toString();
+									XEvent newEvent = new XEventImpl(XLogFunctions.copyAttMap(oldEvent.getAttributes()));
+									
+									if(eventID.equals(thisEventID)) {
+										Date date;
+										
+										if(oldEvent.getAttributes().get("EventType").toString().equals("start")) {
+											// start_date = add some random time to start_date (original)
+											date = XLogFunctions.getTime(thisTrace.get(randomPosition));
+											
+											// get random second from 900 ~ 2700
+											RandomInteger randomInteger = new RandomInteger(1,7200,10800);
+											int randomSecond = randomInteger.getRandomNumber()[0];
+											// add the random second to the start_date (original)
+											Calendar calendar1 = Calendar.getInstance();
+											calendar1.setTime(date);
+											calendar1.add(Calendar.SECOND, randomSecond);
+											XLogFunctions.setTime(newEvent, calendar1.getTime());	
+										}else {
+											for(int k = 0; k < newTrace.size(); k++) {
+												String temp = newTrace.get(k).getAttributes().get("EventID").toString();
+												if(temp.equals(eventID)) {
+													date = XLogFunctions.getTime(newTrace.get(k));
+													// get random second from 900 ~ 2700
+													RandomInteger randomInteger = new RandomInteger(1,7200,10800);
+													int randomSecond = randomInteger.getRandomNumber()[0];
+													// add the random second to the start_date (original)
+													Calendar calendar1 = Calendar.getInstance();
+													calendar1.setTime(date);
+													calendar1.add(Calendar.SECOND, randomSecond);
+													XLogFunctions.setTime(newEvent, calendar1.getTime());	
+													break;
+												}
+											}
+										}
+									}
+									
+									newTrace.add(newEvent);
+								}
+							}else {
+								// Add
+								String resource = "";
+								
+								// copy the old trace to the new event until the position
+								for(int j = 0; j < randomPosition; j++) {
+									XEvent oldEvent = thisTrace.get(j);
+									XEvent newEvent = new XEventImpl(XLogFunctions.copyAttMap(oldEvent.getAttributes()));
+									newTrace.add(newEvent);
+								}
+								
+								// add a new element (new activity id, new resource, new start date, new complete date) in a random position
+								//System.out.println("Add!");
+								
+								Date start_date;
+								Date complete_date;
+								
+								// start_date = add some random time to start_date (original)
+								start_date = XLogFunctions.getTime(thisTrace.get(randomPosition));
+								
+								// get random second from 900 ~ 2700
+								RandomInteger randomInteger = new RandomInteger(1,7200,10800);
+								int randomSecond = randomInteger.getRandomNumber()[0];
+								// add the random second to the start_date (original)
+								Calendar calendar1 = Calendar.getInstance();
+								calendar1.setTime(start_date);
+								calendar1.add(Calendar.SECOND, randomSecond);
+								
+								complete_date = calendar1.getTime();
+								// complete_date = add some random time to the start_date (updated)
+								randomInteger = new RandomInteger(1,7200,10800);
+								randomSecond = randomInteger.getRandomNumber()[0];
+								Calendar calendar2 = Calendar.getInstance();
+								calendar2.setTime(complete_date);
+								calendar2.add(Calendar.SECOND, randomSecond);
+								
+								String activity = this.getRandomActivity();
+								resource = this.getRandomResource();
+								String eventID = traceID + "_" + randomPosition;
+								newTrace.add(addNewEvent(activity, resource, calendar1.getTime(), "start", eventID));
+								newTrace.add(addNewEvent(activity, resource, calendar2.getTime(), "complete", eventID));
+								
+								// add rest of the event
+								for(int j = randomPosition; j < thisTrace.size(); j++) {
+									XEvent oldEvent = thisTrace.get(j);
+									XEvent newEvent = new XEventImpl(XLogFunctions.copyAttMap(oldEvent.getAttributes()));
+									
+									newTrace.add(newEvent);
+								}
+							}
 						}else if(type.equals("Control-flow")) {
 							String eventID = thisTrace.get(randomPosition).getAttributes().get("EventID").toString();
 							//System.out.println("Event ID: " + eventID);
