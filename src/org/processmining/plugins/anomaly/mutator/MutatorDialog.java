@@ -114,7 +114,7 @@ public class MutatorDialog extends JPanel {
 		JPanel deviationTypePane = new JPanel(customLayout);
 		deviationTypePane.setBackground(Color.GRAY);
 		
-		String[] types = {"All", "Control-flow", "Time", "Resource"};
+		String[] types = {"All", "Add", "Control-flow", "Time", "Resource"};
 		final JComboBox<String> deviationTypeComboBox = new JComboBox<String>(types);
 		deviationTypeComboBox.setSelectedIndex(0);
 		parameters.setDeviationType(deviationTypeComboBox.getSelectedItem().toString());

@@ -31,15 +31,14 @@ import analysis.basics.random.RandomInteger;
  * @since 2018. 05. 21
  * 
  * @description: 
- * This model mutates all of the input XES Log. 
- * Therefore, it does not consider what percentage of the log should be mutated.
+ * This model adds resource information to the XES file, generated from PLG.
  * 
  * @parameters:
- * Time mutation:
- * - Start OR complete time mutation
+ * Number of activities for each resource
  * 
- *  Resource mutation:
- *  - New resource
+ * @output:
+ * .csv file
+ * Produced to the output path, set by outputPath 
  * */
 
 public class ResourceGeneratorModel {
